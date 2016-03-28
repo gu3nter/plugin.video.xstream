@@ -135,7 +135,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not aResult[0] or not aResult[1][0]: 
-        oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        if bCloseDir: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
     # Alle Ergebnisse durchlaufen
