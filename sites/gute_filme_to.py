@@ -30,10 +30,11 @@ def load():
     # ParameterHandler erzeugen
     params = ParameterHandler()
 
-    oGui.addFolder(cGuiElement('Filmliste', SITE_IDENTIFIER, 'showFilmlist'))
+    params.setParam('sUrl', URL_LIST % "#")
+    oGui.addFolder(cGuiElement("Alle", SITE_IDENTIFIER, 'showEntriesFilmlist'), params)
+    oGui.addFolder(cGuiElement('A-Z', SITE_IDENTIFIER, 'showFilmlist'))
     params.setParam('sTyp', "Genre")
     oGui.addFolder(cGuiElement('Genre', SITE_IDENTIFIER, 'showYearOrGenreList'),params)
-    #oGui.addFolder(cGuiElement('Sammlung', SITE_IDENTIFIER, ''))
     params.setParam('sTyp', "Jahr")
     oGui.addFolder(cGuiElement('Jahr', SITE_IDENTIFIER, 'showYearOrGenreList'),params)
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
@@ -58,10 +59,6 @@ def showFilmlist():
     for letter in string.uppercase[:26]:
         params.setParam('sUrl', URL_LIST % str(letter))
         oGui.addFolder(cGuiElement(letter, SITE_IDENTIFIER, 'showEntriesFilmlist'), params)
-
-    # "Alle"-Eintrang
-    params.setParam('sUrl', URL_LIST % "#")
-    oGui.addFolder(cGuiElement("Alle", SITE_IDENTIFIER, 'showEntriesFilmlist'), params)
     
     # Liste abschließen
     oGui.setEndOfDirectory()
