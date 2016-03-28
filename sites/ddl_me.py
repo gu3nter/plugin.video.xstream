@@ -132,7 +132,7 @@ def showGenreList():
     # Liste abschließen
     oGui.setEndOfDirectory()
 
-def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
+def showEntries(entryUrl = False, sGui = False):
     # GUI-Element erzeugen wenn nötig
     oGui = sGui if sGui else cGui()
 
@@ -179,7 +179,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
 
         # Funktion verlassen falls keine Daten ermittelt werden konnten
         if not aOneResult[0] or not aOneResult[1][0]: 
-            if bCloseDir: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+            if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
             return
 
         # Alle Ergebnisse durchlaufen
@@ -215,7 +215,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not aResult[0] or not aResult[1][0]: 
-        if bCloseDir: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
     # Alle Ergebnisse durchlaufen
@@ -277,7 +277,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
                 break
 
     # Liste abschließen
-    if bCloseDir:
+    if not sGui:
         oGui.setEndOfDirectory()
 
 def showAllSeasons():
@@ -530,7 +530,7 @@ def showSearch():
     if not sSearchText: return
 
     # Suche durchführen
-    showEntries(URL_SEARCH + sSearchText.strip(), oGui)
+    _search(False, sSearchText)
 
 # Such-Funktion (z.b auch für Globale-Suche)
 def _search(oGui, sSearchText):
@@ -538,4 +538,4 @@ def _search(oGui, sSearchText):
     if not sSearchText: return
 
     # URL-Übergeben und Ergebniss anzeigen
-    showEntries(URL_SEARCH + sSearchText.strip(), oGui, False)
+    showEntries(URL_SEARCH + sSearchText.strip(), oGui)
