@@ -532,6 +532,9 @@ def showSearch():
     # Suche durchführen
     _search(False, sSearchText)
 
+    #Liste abschließen
+    oGui.setEndOfDirectory()
+
 # Such-Funktion (z.b auch für Globale-Suche)
 def _search(oGui, sSearchText):
     # Keine Eingabe? => raus hier

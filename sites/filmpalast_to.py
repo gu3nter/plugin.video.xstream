@@ -72,7 +72,7 @@ def showAlphaNumeric():
     oGui.setView('movies')
     oGui.setEndOfDirectory()
 
-def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
+def showEntries(entryUrl = False, sGui = False):
     oGui = sGui if sGui else cGui()
     params = ParameterHandler()
     if not entryUrl: entryUrl = params.getValue('sUrl')
@@ -100,7 +100,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
         params.setParam('sUrl', aResult[1][0])
         oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
     oGui.setView('movies')
-    if bCloseDir: 
+    if not sGui: 
         oGui.setEndOfDirectory()
 
 # Show the hosters dialog
@@ -141,7 +141,8 @@ def showSearch():
     oGui = cGui()
     sSearchText = oGui.showKeyBoard()
     if not sSearchText: return
-    _search(oGui, sSearchText)
+    _search(False, sSearchText)
+    oGui.setEndOfDirectory()
 
 # Search using the requested string sSearchText
 def _search(oGui, sSearchText):
