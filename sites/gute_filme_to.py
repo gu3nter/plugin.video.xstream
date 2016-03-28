@@ -121,7 +121,7 @@ def showEntries(entryUrl = False, sGui = False):
     sHtmlContent = cRequestHandler(entryUrl).request()
 
     # URL und Title ermitteln
-    pattern = "<article[^>]*>.*?"
+    pattern = "<article[^>]*class=['\"].*? (movie|page) .*?['\"][^>]*>.*?"
     pattern += "<a[^>]*href=['\"]([^'\"]*)['\"][^>]*>(.*?)</a>.*?"
 
     # Thumbnail ermitteln (Optinal da Teilweise nicht vorhanden)
@@ -133,8 +133,6 @@ def showEntries(entryUrl = False, sGui = False):
     # article-Tag abschließen
     pattern += "</article>"
 
-    logger.info("pattern %s" % pattern)
-
     # HTML parsen
     aResult = cParser().parse(sHtmlContent, pattern)
 
@@ -144,8 +142,9 @@ def showEntries(entryUrl = False, sGui = False):
         return
 
     # Alle Ergebnisse durchlaufen
-    for sUrl, sName, sThumbnail, sDesc in aResult[1]:
-        __addMovieEntry(oGui, sName, sUrl, sThumbnail, sDesc)
+    for sLinkTyp ,sUrl, sName, sThumbnail, sDesc in aResult[1]:
+        if sLinkTyp == "movie" :
+            __addMovieEntry(oGui, sName, sUrl, sThumbnail, sDesc)
 
     # Next-Page einbauen
     __addNextPage(oGui,sHtmlContent,params,'showEntries')
@@ -298,6 +297,8 @@ def showSearch():
 def _search(oGui, sSearchText):
     # Keine Eingabe? => raus hier
     if not sSearchText: return
+
+    logger.info(URL_SEARCH % sSearchText.strip())
 
     # URL-Übergeben und Ergebniss anzeigen
     showEntries(URL_SEARCH % sSearchText.strip(), oGui)
