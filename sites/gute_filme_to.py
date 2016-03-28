@@ -101,14 +101,14 @@ def showYearOrGenreList():
     # Liste abschließen
     oGui.setEndOfDirectory()
 
-def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
+def showEntries(entryUrl = False, sGui = False):
     # GUI-Element erzeugen wenn nötig
     oGui = sGui if sGui else cGui()
 
     # ParameterHandler erzeugen
     params = ParameterHandler()
 
-        # URL ermitteln falls nicht übergeben
+    # URL ermitteln falls nicht übergeben
     if not entryUrl: entryUrl = params.getValue('sUrl')
 
     # View setzen (es gibt nur Filme)
@@ -135,7 +135,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not aResult[0] or not aResult[1][0]: 
-        if bCloseDir: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
     # Alle Ergebnisse durchlaufen
@@ -147,7 +147,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
     __addNextPage(oGui,sHtmlContent,params,'showEntries')
 
     # Liste abschließen
-    if bCloseDir:
+    if not sGui:
         oGui.setEndOfDirectory()
 
 def showEntriesFilmlist(entryUrl = False, sGui = False):
@@ -178,7 +178,7 @@ def showEntriesFilmlist(entryUrl = False, sGui = False):
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not aResult[0] or not aResult[1][0]: 
-        oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
     # Alle Ergebnisse durchlaufen
@@ -189,7 +189,8 @@ def showEntriesFilmlist(entryUrl = False, sGui = False):
     __addNextPage(oGui,sHtmlContent,params,'showEntriesFilmlist')
 
     # Liste abschließen
-    oGui.setEndOfDirectory()
+    if not sGui:
+        oGui.setEndOfDirectory()
 
 def __addMovieEntry(oGui, sName, sUrl, sThumbnail, sDesc = ""):
     # Listen-Eintrag erzeugen
@@ -289,7 +290,7 @@ def showSearch():
     if not sSearchText: return
 
     # Suche durchführen
-    showEntries(URL_SEARCH % sSearchText.strip(), oGui)
+    _search(False, sSearchText)
 
 # Such-Funktion (z.b auch für Globale-Suche)
 def _search(oGui, sSearchText):
@@ -297,4 +298,4 @@ def _search(oGui, sSearchText):
     if not sSearchText: return
 
     # URL-Übergeben und Ergebniss anzeigen
-    showEntries(URL_SEARCH % sSearchText.strip(), oGui, False)
+    showEntries(URL_SEARCH % sSearchText.strip(), oGui)
