@@ -1,3 +1,4 @@
+# -- coding: utf-8 --
 from resources.lib.gui.gui import cGui
 from resources.lib.config import cConfig
 from resources.lib import common
@@ -8,6 +9,7 @@ import string
 import logger
 import time
 import os
+import sys
 
 class cDownload:
 
@@ -79,7 +81,10 @@ class cDownload:
             iTotalSize = int(headers["Content-Length"])
 
         chunk = 4096
-        f = open(r'%s' % fpath.decode('utf-8'), "wb")
+        if sys.platform.startswith('win'):
+            f = open(r'%s' % fpath.decode('utf-8'), "wb")
+        else:
+            f = open(r'%s' % fpath, "wb")
         iCount = 0
         self._startTime = time.time()      
         while 1:
