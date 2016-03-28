@@ -31,7 +31,7 @@ def load():
     params = ParameterHandler()
 
     params.setParam('sUrl', URL_LIST % "#")
-    oGui.addFolder(cGuiElement("Alle", SITE_IDENTIFIER, 'showEntriesFilmlist'), params)
+    oGui.addFolder(cGuiElement("Alle Filme", SITE_IDENTIFIER, 'showEntriesFilmlist'), params)
     oGui.addFolder(cGuiElement('A-Z', SITE_IDENTIFIER, 'showFilmlist'))
     params.setParam('sTyp', "Genre")
     oGui.addFolder(cGuiElement('Genre', SITE_IDENTIFIER, 'showYearOrGenreList'),params)
