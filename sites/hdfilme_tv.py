@@ -124,7 +124,7 @@ def showGenreList():
     # Liste abschließen
     oGui.setEndOfDirectory()
 
-def showEntries(entryUrl = False, sGui = False):
+def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
     # GUI-Element erzeugen wenn nötig
     oGui = sGui if sGui else cGui()
 
@@ -222,7 +222,8 @@ def showEntries(entryUrl = False, sGui = False):
         oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
 
     # Liste abschließen
-    oGui.setEndOfDirectory()
+    if bCloseDir:
+        oGui.setEndOfDirectory()
 
 def showHosters():
     # ParameterHandler erzeugen
@@ -337,7 +338,7 @@ def showSearch():
     if not sSearchText: return
 
     # Suche durchführen
-    _search(oGui, sSearchText)
+    showEntries(URL_SEARCH + sSearchText.strip(), oGui)
 
 # Such-Funktion (z.b auch für Globale-Suche)
 def _search(oGui, sSearchText):
@@ -345,7 +346,7 @@ def _search(oGui, sSearchText):
     if not sSearchText: return
 
     # URL-Übergeben und Ergebniss anzeigen
-    showEntries(URL_SEARCH + sSearchText.strip(), oGui)
+    showEntries(URL_SEARCH + sSearchText.strip(), oGui, False)
 
 # Funktion zum ermitteln des HTML-Contens (mit angepassten Header)
 def __getHtmlContent(sUrl = False,):
