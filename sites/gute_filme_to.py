@@ -298,7 +298,5 @@ def _search(oGui, sSearchText):
     # Keine Eingabe? => raus hier
     if not sSearchText: return
 
-    logger.info(URL_SEARCH % sSearchText.strip())
-
     # URL-Übergeben und Ergebniss anzeigen
     showEntries(URL_SEARCH % sSearchText.strip(), oGui)
