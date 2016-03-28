@@ -153,7 +153,7 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not aResult[0] or not aResult[1][0]: 
-        oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        if bCloseDir: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
     # Content festlegen der geparst werden soll
@@ -177,7 +177,9 @@ def showEntries(entryUrl = False, sGui = False, bCloseDir = True):
     aResult = cParser().parse(sMainContent, pattern)
 
     # Kein Einträge gefunden? => Raus hier
-    if not aResult[0]: return
+    if not aResult[0]: 
+        if bCloseDir: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        return
 
     # Alle Ergebnisse durchlaufen
     for sUrl, sThumbnail, sName, sDesc in aResult[1]:
