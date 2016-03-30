@@ -46,27 +46,45 @@ def checkforupdates():
             logger.info("Ratelimit reached")
 
     elif cConfig().getSetting('UpdateSetting') == "Beta":
-        if getRemoteVersion(REMOTE_VERSION_FILE_BETA) > getLocalVersion():
+        oLocalVer = getLocalVersion()
+        oRemoteVer = getRemoteVersion(REMOTE_VERSION_FILE_BETA)
+        
+        if oLocalVer is not None and oRemoteVer is not None and oRemoteVer > oLocalVer:
             update(REMOTE_URL_BETA)
 
     elif cConfig().getSetting('UpdateSetting') == "Stable":
-        if getRemoteVersion(REMOTE_VERSION_FILE_MASTER) > getLocalVersion():
+        oLocalVer = getLocalVersion()
+        oRemoteVer = getRemoteVersion(REMOTE_VERSION_FILE_MASTER)
+        
+        if oLocalVer is not None and oRemoteVer is not None and oRemoteVer > oLocalVer:
             update(REMOTE_URL_MASTER)
 
 
 def getLocalVersion():
     xml = open(os.path.join(ROOT_DIR, "addon.xml")).read()
-    version = V(ET.fromstring(xml).attrib['version'])
-    logger.info("xStream Localversion: " + version.vstring)
+    version = getVersionFromXML(xml);
+    logger.info("xStream Localversion: " + (version.vstring if version is not None else "Unbekannt"))
     return version
-
 
 def getRemoteVersion(REMOTE_VERSION_URL):
     xml = urllib.urlopen(REMOTE_VERSION_URL).read()
-    version = V(ET.fromstring(xml).attrib['version'])
-    logger.info("xStream Remoteversion: " + version.vstring)
+    version = getVersionFromXML(xml);
+    logger.info("xStream Remoteversion: " + (version.vstring if version is not None else "Unbekannt"))
     return version
 
+def getVersionFromXML(sXML):
+    oEle = getElementTreeFromString(sXML)
+
+    if oEle is not None and 'version' in oEle.attrib:
+        version = V(oEle.attrib['version'])
+        return version
+
+def getElementTreeFromString(sXML):
+    try:
+        tree = ET.fromstring(sXML)
+        return tree
+    except ET.ParseError:
+        pass
 
 def update(REMOTE_PATH):
 
