@@ -16,9 +16,6 @@ xStream is a video-addon for Kodi to watch streams from various german film, ser
 * szene-streams.com `mainly working`
 
 ## Installation:
-* Download [repository](http://xstream-addon.square7.ch/link_counter.php?url=http://xstream-addon.square7.ch/repo/repository.xstream/repository.xstream-1.0.3.zip) file
+* Download [repository](https://raw.githubusercontent.com/Lynx187/xStreamRepo/master/repository.xstream/repository.xstream-1.0.5.zip) file
 * Install it as a kodi addon
 * Install xstream addon from xstream repository
-
-## Support
-* Visit: http://xstream-addon.square7.ch
