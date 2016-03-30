@@ -15,7 +15,9 @@
         <setting type="sep" />
     </category>
     <category label="30022">
-        <setting label="BurningSeries" type="lsep" />
+        <setting label="Anime-Loads" type="lsep" />
+	<setting default="false" id="plugin_anime-loads_org" label="Anime-Loads" type="bool" />
+	<setting label="BurningSeries" type="lsep" />
 	<setting default="false" id="plugin_bs_to" label="BurningSeries" type="bool" />
 	<setting label="Cineplex" type="lsep" />
 	<setting default="false" id="plugin_cineplex_tv" label="Cineplex" type="bool" />

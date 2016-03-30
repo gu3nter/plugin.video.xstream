@@ -243,16 +243,18 @@ def showRandom():
 def randomSearch():
     oGui = cGui()
     oParams = ParameterHandler()
-    if oParams.getValue('specific') == 'true' and oParams.getValue('seriesID') is None:
+    if oParams.getValue('specific') == 'true' and not oParams.getValue('seriesID'):
         showSeries()
-    elif oParams.getValue('seriesID') is not None:
+        return
+    elif oParams.getValue('seriesID'):
         series = {'id' : oParams.getValue('seriesID'), 'series' : oParams.getValue('Title')}
     else:
         series = random.choice(_getJsonContent('series'))
     season = _getJsonContent("series/%s/1" % series['id'])
     randomepisode = (random.choice(season['epi']))['epi']
 
-    Title = season['series']['series'] + ' - ' + str(filter(lambda person: person['epi'] == randomepisode, season['epi'])[0]['german'])
+    Title = season['series']['series'].encode('utf-8') + ' - ' + \
+            str(filter(lambda person: person['epi'] == randomepisode, season['epi'])[0]['german']).encode('utf-8')
     guiElement = cGuiElement(Title, SITE_IDENTIFIER, 'showHosters')
     guiElement.setMediaType('episode')
     guiElement.setEpisode(randomepisode)
