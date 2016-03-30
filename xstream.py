@@ -12,8 +12,6 @@ import sys
 
 # Main starting function
 def run():
-    if cConfig().getSetting('UpdateSetting') != 'Off':
-        updateManager.checkforupdates()
     parseUrl()
 
 
@@ -206,7 +204,9 @@ def parseUrl():
       # As a default if no site was specified, we run the default starting gui with all plugins
       showMainMenu(sFunction)
 
-def showMainMenu(sFunction):    
+def showMainMenu(sFunction):
+    if cConfig().getSetting('UpdateSetting') != 'Off':
+        updateManager.checkforupdates()
     oGui = cGui()
     oPluginHandler = cPluginHandler()
     aPlugins = oPluginHandler.getAvailablePlugins()
