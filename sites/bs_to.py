@@ -28,7 +28,7 @@ def load():
     oGui.addFolder(cGuiElement('Alle Serien', SITE_IDENTIFIER, 'showSeries'))
     oGui.addFolder(cGuiElement('Genres', SITE_IDENTIFIER, 'showGenres'))
     oGui.addFolder(cGuiElement('A-Z', SITE_IDENTIFIER, 'showCharacters'))
-    oGui.addFolder(cGuiElement('Random', SITE_IDENTIFIER, 'showRandom'))
+    oGui.addFolder(cGuiElement('Zufall', SITE_IDENTIFIER, 'showRandom'))
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
     oGui.setEndOfDirectory()
 
