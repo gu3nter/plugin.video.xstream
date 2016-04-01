@@ -158,9 +158,6 @@ def showEntriesFilmlist(entryUrl = False, sGui = False):
     # URL ermitteln falls nicht übergeben
     if not entryUrl: entryUrl = params.getValue('sUrl')
 
-    # View setzen (es gibt nur Filme)
-    oGui.setView('movies')
-
     # Seite abrufen
     sHtmlContent = cRequestHandler(entryUrl).request()
 
@@ -186,8 +183,9 @@ def showEntriesFilmlist(entryUrl = False, sGui = False):
     # Next-Page einbauen
     __addNextPage(oGui,sHtmlContent,params,'showEntriesFilmlist')
 
-    # Liste abschließen
+    # Liste abschließen (wenn nötig)
     if not sGui:
+        oGui.setView('movies')
         oGui.setEndOfDirectory()
 
 def __addMovieEntry(oGui, sName, sUrl, sThumbnail, sDesc = ""):
