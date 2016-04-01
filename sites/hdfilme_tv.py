@@ -184,9 +184,9 @@ def showEntries(entryUrl = False, sGui = False):
         if isTvshow:
             res = re.search('(.*?) staffel (\d+)', sName,re.I)
             if res:           
-                oGuiElement.setSeason(res.group(2)) 
+                oGuiElement.setSeason(int(res.group(2))) 
                 oGuiElement.setTVShowTitle(res.group(1))
-                oGuiElement.setTitle('%s - Staffel %s' % (res.group(1),res.group(2)))
+                oGuiElement.setTitle('%s - Staffel %s' % (res.group(1),int(res.group(2))))
 
         # Thumbnail und Beschreibung für Anzeige anpassen
         sThumbnail = sThumbnail.replace('_thumb', '')
