@@ -51,7 +51,6 @@ def showGenre():
         oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showEntries')
         params.setParam('sUrl', sUrl)
         oGui.addFolder(oGuiElement, params)
-    oGui.setView('movies')
     oGui.setEndOfDirectory()
 
 def showAlphaNumeric():
@@ -69,7 +68,6 @@ def showAlphaNumeric():
         oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showEntries')
         params.setParam('sUrl', sUrl)
         oGui.addFolder(oGuiElement, params)
-    oGui.setView('movies')
     oGui.setEndOfDirectory()
 
 def showEntries(entryUrl = False, sGui = False):
@@ -77,9 +75,6 @@ def showEntries(entryUrl = False, sGui = False):
     params = ParameterHandler()
     if not entryUrl: entryUrl = params.getValue('sUrl')
     oRequest = cRequestHandler(entryUrl)
-<<<<<<< HEAD
-    oGui.setView('tvshows' if 'serien/' in entryUrl else 'movie')
-=======
     if 'serien/' in entryUrl:
         contentType = 'episodes'
         mediaType = 'episode'
@@ -87,7 +82,6 @@ def showEntries(entryUrl = False, sGui = False):
         contentType = 'movies'
         mediaType = 'movie'
   
->>>>>>> Lynx187/master
     sHtmlContent = oRequest.request()
     # Grab the link and title
     pattern = '<a[^>]*href="([^"]*)"[^>]*title="([^"]*)"[^>]*>[^<]*'
@@ -113,13 +107,8 @@ def showEntries(entryUrl = False, sGui = False):
     if aResult[0] and aResult[1][0]:
         params.setParam('sUrl', aResult[1][0])
         oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
-<<<<<<< HEAD
-    oGui.setView('movies')
-    if not sGui: 
-=======
     if not sGui:
         oGui.setView(contentType)	
->>>>>>> Lynx187/master
         oGui.setEndOfDirectory()
 
 # Show the hosters dialog
@@ -128,7 +117,7 @@ def showHosters():
     oRequest = cRequestHandler(params.getValue('entryUrl'))
     sHtmlContent = oRequest.request()
     pattern = '<p[^>]*class="hostName"[^>]*>([^<>]+)</p>.*?'
-    pattern += '<a[^>]*class="[^"]*stream-src[^"]*"[^>]*data-id="([^"]+)"[^>].*?>'
+    pattern += '<a[^>]*class="[^"]*stream-src[^"]*"[^>]*data-id="([^"]+)"[^>]*>'
     aResult = cParser().parse(sHtmlContent, pattern)
     if not aResult[0]:
         return
@@ -160,10 +149,6 @@ def showSearch():
     sSearchText = cGui().showKeyBoard()
     if not sSearchText: return
     _search(False, sSearchText)
-<<<<<<< HEAD
-    oGui.setEndOfDirectory()
-=======
->>>>>>> Lynx187/master
 
 # Search using the requested string sSearchText
 def _search(oGui, sSearchText):
