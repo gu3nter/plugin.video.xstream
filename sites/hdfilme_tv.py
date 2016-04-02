@@ -247,7 +247,7 @@ def showEpisodes(aResult, params):
     oGui = cGui()
 
     # Variable für Ansicht vorbereiten
-    sName = params.getValue('sName')
+    sTVShowTitle = params.getValue('TVShowTitle')
     iSeason = int(params.getValue('season'))
     sThumbnail = params.getValue('sThumbnail')
 
@@ -259,6 +259,7 @@ def showEpisodes(aResult, params):
         sName = 'Folge ' + str(iEpisode)
         oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'getHosters')
         oGuiElement.setMediaType('episode')
+        oGuiElement.setTVShowTitle(sTVShowTitle)
         oGuiElement.setSeason(iSeason)
         oGuiElement.setEpisode(iEpisode)
         oGuiElement.setThumbnail(sThumbnail)
