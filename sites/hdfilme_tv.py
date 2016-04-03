@@ -183,8 +183,7 @@ def showEntries(entryUrl = False, sGui = False):
         # Bei Serien Title anpassen
         if isTvshow:
             res = re.search('(.*?) staffel (\d+)', sName,re.I)
-            if res:           
-                oGuiElement.setSeason(int(res.group(2))) 
+            if res:
                 oGuiElement.setTVShowTitle(res.group(1))
                 oGuiElement.setTitle('%s - Staffel %s' % (res.group(1),int(res.group(2))))
 
@@ -248,7 +247,8 @@ def showEpisodes(aResult, params):
 
     # Variable für Ansicht vorbereiten
     sTVShowTitle = params.getValue('TVShowTitle')
-    iSeason = int(params.getValue('season'))
+    sName = params.getValue('sName')
+    iSeason = int(re.compile('.*?staffel\s*(\d+)').findall(sName.lower())[0])
     sThumbnail = params.getValue('sThumbnail')
 
     # Listengröße ermitteln
