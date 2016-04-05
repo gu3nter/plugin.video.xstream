@@ -9,7 +9,7 @@ from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.parser import cParser
 from resources.lib.util import cUtil
 
-# Basis-Einträge für xStream
+# Basis-EintrÃ¤ge fÃ¼r xStream
 SITE_IDENTIFIER = 'anime-loads_org'
 SITE_NAME = 'Anime-Loads'
 SITE_ICON = 'anime-loads.png'
@@ -31,12 +31,12 @@ def load():
     # Gui-Elemet erzeugen
     oGui = cGui()
 
-    # Menü erzeugen
+    # MenÃ¼ erzeugen
     oGui.addFolder(cGuiElement('Filme', SITE_IDENTIFIER, 'showMovieMenu'))
     oGui.addFolder(cGuiElement('Serien', SITE_IDENTIFIER, 'showSeriesMenu'))
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
 
-    # Debug (zum prüfen des Capatcha)
+    # Debug (zum prÃ¼fen des Capatcha)
     #oParams = ParameterHandler()
     #oParams.addParams({'sUrl':  URL_SEARCH_ANIME % 'silver spoon 2'})
     #oGui.addFolder(cGuiElement('***Capatcha-Test***', SITE_IDENTIFIER, 'showEntries'), oParams)
@@ -46,7 +46,7 @@ def load():
     #oParams.addParams({'sUrl': URL_SEARCH_ANIME % 'garden of words'})
     #oGui.addFolder(cGuiElement('***Mutli-Release-Test***', SITE_IDENTIFIER, 'showEntries'), oParams)
 
-    # Liste abschließen
+    # Liste abschlieÃŸen
     oGui.setEndOfDirectory()
 
 def showMovieMenu():
@@ -56,13 +56,13 @@ def showMovieMenu():
     # Parameter setzen
     params = ParameterHandler()
 
-    # Menü erzeugen
+    # MenÃ¼ erzeugen
     params.setParam('sUrl', URL_MOVIES)
     oGui.addFolder(cGuiElement('Neuste Filme', SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('sUrl', URL_MOVIES_ASC)
     oGui.addFolder(cGuiElement('Alle Filme', SITE_IDENTIFIER, 'showEntries'), params)
 
-    # Liste abschließen
+    # Liste abschlieÃŸen
     oGui.setEndOfDirectory()
 
 def showSeriesMenu():
@@ -72,23 +72,23 @@ def showSeriesMenu():
     # Parameter setzen
     params = ParameterHandler()
 
-    # Menü erzeugen
+    # MenÃ¼ erzeugen
     params.setParam('sUrl', URL_SERIES)
     oGui.addFolder(cGuiElement('Neuste Serien', SITE_IDENTIFIER, 'showEntries'), params)
     params.setParam('sUrl', URL_SERIES_ASC)
     oGui.addFolder(cGuiElement('Alle Serien', SITE_IDENTIFIER, 'showEntries'), params)
 
-    # Liste abschließen
+    # Liste abschlieÃŸen
     oGui.setEndOfDirectory()
 
 def showEntries(entryUrl = False, sGui = False):
-    # GUI-Element erzeugen wenn nötig
+    # GUI-Element erzeugen wenn nÃ¶tig
     oGui = sGui if sGui else cGui()
 
     # ParameterHandler erzeugen
     params = ParameterHandler()
 
-    # URL ermitteln falls nicht übergeben
+    # URL ermitteln falls nicht Ã¼bergeben
     if not entryUrl: entryUrl = params.getValue('sUrl')
 
     # HTML-Laden
@@ -119,18 +119,18 @@ def showEntries(entryUrl = False, sGui = False):
         if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
-    # Prüfen ob es sich um einen Film oder um eine Serie handelt
+    # PrÃ¼fen ob es sich um einen Film oder um eine Serie handelt
     isTvshow = True if URL_SERIES in entryUrl else False
 
-    # Listengröße ermitteln
+    # ListengrÃ¶ÃŸe ermitteln
     total = len (aResult[1])
 
     # Ergebnisse durchlaufen
     for sThumbnail, sUrl, sName, sTyp, sYear, sEpisodes, sDesc, sGenre in aResult[1]:
-        # Prüfen ob es sich um einen Film oder um eine Serie handelt
+        # PrÃ¼fen ob es sich um einen Film oder um eine Serie handelt
         isMovie = True if sTyp.strip() == 'Anime Film' else False
 
-        # Decoding für die Beschreibung um Anzeifehler zu vermeiden
+        # Decoding fÃ¼r die Beschreibung um Anzeifehler zu vermeiden
         sDesc = cUtil().unescape(sDesc.decode('utf-8')).encode('utf-8').strip()
 
         # Eintrag erzeugen
@@ -167,7 +167,7 @@ def showEntries(entryUrl = False, sGui = False):
             oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
             break
 
-    # List abschließen
+    # List abschlieÃŸen
     if not sGui:
         oGui.setView('tvshows' if isTvshow else 'movies')
         oGui.setEndOfDirectory()
@@ -179,42 +179,57 @@ def showReleases():
     # ParameterHandler erzeugen
     params = ParameterHandler()
 
-    # Variable für Ansicht vorbereiten
+    # Variable fÃ¼r Ansicht vorbereiten
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
 
     # Seite laden
     sHtmlContent = cRequestHandler(params.getValue('entryUrl')).request()
 
-    # Title ermitteln (Basis-Version, später mit Spracheermittlung)
-    pattern = "<a[^>]*href=['\"]#stream_(\d)['\"][^>]*>.*?</i>(.*?)<"
+    # ReleaseId und Name ermitteln
+    pattern = "<a[^>]*href=['\"]#stream_(\d+)['\"][^>]*>.*?</i>(.*?)"
+
+    # Sprache ermitteln (Optional)
+    pattern += "(?:<i[^>]*class=['\"].*?flag-(\w+)['\"][^>]*>.*?)?"
+    
+    # Untertiel ermitteln (Optional) und Pattern schlieÃŸn
+    pattern += "(?:[|]\s<i[^>]*class=['\"].*?flag-(\w+)['\"][^>]*>.*?)?</li>"
 
     # HTML parsen
     aResult = cParser().parse(sHtmlContent, pattern)
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not aResult[0] or not aResult[1][0]: 
-        if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
-    # Listengröße ermitteln
+    # ListengrÃ¶ÃŸe ermitteln
     total = len(aResult[1])
 
     # alle Ergebnisse durchlaufen
-    for sReleaseId, sReleaseName in aResult[1]:
+    for sReleaseId, sReleaseName, sLang, sSubLang in aResult[1]:
         # Alle Streams des jeweiligen Releases ermitteln
         aStreams = cParser().parse(sHtmlContent, "id=['\"]streams_episodes_%s_\d['\"]" % sReleaseId)
 
-        # Kein Episoden verfügbar? => weiter machen
+        # Kein Episoden verfÃ¼gbar? => weiter machen
         if not aResult[0] or not aResult[1][0]: 
             continue
+
+        # unnÃ¶tige Leerzeichen entfernen (falls vorhanden)
+        sReleaseName = sReleaseName.strip()
+
+        # Sprache ergÃ¤nzen wenn mÃ¶glich
+        if sLang and sSubLang:
+            sReleaseName += " (%s | %s)" % (sLang.upper(),sSubLang.upper())
+        elif sLang:
+            sReleaseName += " (%s)" % (sLang.upper())
 
         # Eintrag erzeugen
         oGuiElement = cGuiElement(sReleaseName, SITE_IDENTIFIER, 'showHosters')
         oGuiElement.setThumbnail(sThumbnail)
         params.setParam('iReleaseId', int(sReleaseId))
 
-        # Episoden Streams verfügbar? => Liste anzeigen 
+        # Episoden Streams verfÃ¼gbar? => Liste anzeigen 
         if len(aStreams[1]) > 1:
             oGuiElement.setFunction("showEpisodes")
             oGui.addFolder(oGuiElement, params, True, total)
@@ -222,7 +237,7 @@ def showReleases():
             params.setParam('iEpisodeId', 0)
             oGui.addFolder(oGuiElement, params, False, total)
 
-    #Liste abschließen
+    #Liste abschlieÃŸen
     oGui.setEndOfDirectory()
 
 def showEpisodes():
@@ -244,16 +259,16 @@ def showEpisodes():
     # HTML parsen
     aResult = cParser().parse(sHtmlContent, pattern)
 
-    # Kein Episoden verfügbar? => weiter machen
+    # Kein Episoden verfÃ¼gbar? => weiter machen
     if not aResult[0] or not aResult[1][0]: 
         oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
-    # Variable für Ansicht vorbereiten
+    # Variable fÃ¼r Ansicht vorbereiten
     sThumbnail = params.getValue('sThumbnail')
     sName = params.getValue('sName')
 
-    # Listengröße ermitteln
+    # ListengrÃ¶ÃŸe ermitteln
     total = len(aResult[1])
 
     # alle Ergebnisse durchlaufen
@@ -269,7 +284,7 @@ def showEpisodes():
     # Ansicht auf "Episoden" setze
     oGui.setView('episodes')
 
-    #Liste abschließen
+    #Liste abschlieÃŸen
     oGui.setEndOfDirectory()
 
 # Hoster-Dialog anzeigen
@@ -284,41 +299,41 @@ def showHosters():
     pattern = "'&ud=(.*?)\">"
     aUdResult = cParser().parse(sHtmlContent, pattern)
 
-    # data-enc für den jeweiligen Eintrag ermitteln
+    # data-enc fÃ¼r den jeweiligen Eintrag ermitteln
     pattern = 'id="streams_episodes_%d_%d"\sdata-enc="(.+?)"' % (int(params.getValue('iReleaseId')),int(params.getValue('iEpisodeId')))
     aResult = cParser().parse(sHtmlContent, pattern)
 
     # Hosterliste initalisieren
     hosters = []
 
-    # Liegen beide Einträge vor => Link ermitteln
+    # Liegen beide EintrÃ¤ge vor => Link ermitteln
     if aUdResult[0] and aResult[0]:
         hosters = _decryptLink(aResult[1][0], aUdResult[1][0])
 
-    # Hoster Liste zurückgeben
+    # Hoster Liste zurÃ¼ckgeben
     return hosters
 
 def getHosterUrl(sUrl = False):
     #ParameterHandler erzeugen
     oParams = ParameterHandler()
 
-    # URL ermitteln falls nicht übergeben
+    # URL ermitteln falls nicht Ã¼bergeben
     if not sUrl: sUrl = oParams.getValue('url')
 
-    # Array mit einem Eintrag für Hosterliste erzeugen (sprich direkt abspielen)
+    # Array mit einem Eintrag fÃ¼r Hosterliste erzeugen (sprich direkt abspielen)
     results = []
     result = {}
     result['streamUrl'] = _resolveLeaveLink(sUrl)
     result['resolved'] = False
 
-    # Konnte die URL ermittelt werden? => Zur List hinzufügen
+    # Konnte die URL ermittelt werden? => Zur List hinzufÃ¼gen
     if result['streamUrl']:
         results.append(result)
 
-    # Ergebniss zurückliefern
+    # Ergebniss zurÃ¼ckliefern
     return results
 
-# Sucher über UI
+# Sucher Ã¼ber UI
 def showSearch():
     # Gui-Elemet erzeugen
     oGui = cGui()
@@ -329,18 +344,18 @@ def showSearch():
     # Keine Eingabe? => raus hier
     if not sSearchText: return
 
-    # Suche durchführen
+    # Suche durchfÃ¼hren
     _search(False, sSearchText)
 
-    #Liste abschließen
+    #Liste abschlieÃŸen
     oGui.setEndOfDirectory()
 
-# Such-Funktion (z.b auch für Globale-Suche)
+# Such-Funktion (z.b auch fÃ¼r Globale-Suche)
 def _search(oGui, sSearchText):
     # Keine Eingabe? => raus hier
     if not sSearchText: return
 
-    # URL-Übergeben und Ergebniss anzeigen
+    # URL-Ãœbergeben und Ergebniss anzeigen
     showEntries(URL_SEARCH_ANIME % sSearchText.strip(), oGui)
 
 '''
@@ -351,7 +366,7 @@ def _decryptLink(enc, ud):
     # Versuchen JSon direkt zu bekommen
     response = _sendEnc(enc, ud)
 
-    # Kein Folge? => Capatcha lösen lassen
+    # Kein Folge? => Capatcha lÃ¶sen lassen
     if 'code' in response and response['code'] == 'error':
         token = _uncaptcha()
         if token:
@@ -368,18 +383,18 @@ def _decryptLink(enc, ud):
             hoster['name'] = entry['hoster_name']
             hosters.append(hoster)
 
-    # Sind Hoster vorhanden? => Nachfolgefunktion ergänzen
+    # Sind Hoster vorhanden? => Nachfolgefunktion ergÃ¤nzen
     if len(hosters) > 0:
         hosters.append('getHosterUrl')
 
-    # Rückgabe
+    # RÃ¼ckgabe
     return hosters
 
 def _resolveLeaveLink(link):
     # Leave-Link aufrufen
     sHtmlContent = _getRequestHandlerForCapacha(URL_MAIN + 'leave/' + link).request()
 
-    # Entgültigen-Link ermitteln
+    # EntgÃ¼ltigen-Link ermitteln
     sPattern = "link\s+=\s'(.*?)',"
     aResult = cParser().parse(sHtmlContent, sPattern)
 
@@ -388,7 +403,7 @@ def _resolveLeaveLink(link):
         # Fuck this... Sonnst gehts nicht -.-
         time.sleep(15)
 
-        # Link verfolgen und Redirect zurückgeben
+        # Link verfolgen und Redirect zurÃ¼ckgeben
         oRequestHandler = _getRequestHandlerForCapacha(aResult[1][0])
         oRequestHandler.request()
         return oRequestHandler.getRealUrl()
@@ -397,12 +412,12 @@ def _sendEnc(enc, ud, response = None):
     # Cookies ermitteln
     _getRequestHandlerForCapacha('%sassets/pub/js/userdata?ud=%s' % (URL_MAIN, ud)).request()
 
-    # Cookie anpassen und captcha AJax zum jeweiligen Link ausführen
+    # Cookie anpassen und captcha AJax zum jeweiligen Link ausfÃ¼hren
     oRequestHandler = _getRequestHandlerForCapacha(URL_MAIN + 'ajax/captcha')
     oRequestHandler.addParameters('enc', enc)
     oRequestHandler.addParameters('response', (response if response else 'nocaptcha'))
 
-    # Rückgabe-JSon lesen
+    # RÃ¼ckgabe-JSon lesen
     return json.loads(oRequestHandler.request())
 
 def _uncaptcha():
