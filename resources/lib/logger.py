@@ -22,7 +22,9 @@ def fatal(sInfo):
 
 def __writeLog(sLog, cLogLevel):
     params = ParameterHandler()
-    sLog = sLog.encode("utf-8")
+    # Need a better was to do this
+    if isinstance(sLog, basestring):
+        sLog = sLog.encode("utf-8")
     if params.exist('site'):
         site = params.getValue('site')
         print "\t[xStream] ->%s: %s" %(site,sLog)
