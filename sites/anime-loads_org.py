@@ -9,6 +9,7 @@ from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.parser import cParser
 from resources.lib.util import cUtil
+from resources.lib.config import cConfig
 
 # Basis-Einträge für xStream
 SITE_IDENTIFIER = 'anime-loads_org'
@@ -24,7 +25,7 @@ URL_SERIES = URL_MAIN + '%s-series/'
 URL_SERIES_ASC = URL_SERIES + '?sort=title&order=asc'
 
 # Liste der Untersützten Typen
-SUPP_TYPES = { "anime", "asia" }
+SUPP_TYPES = { "anime", "asia", "hentai"}
 
 # Site-Key der Seite
 SITE_KEY = '6LdSHggTAAAAAEdkVArXG7E27hyEc2Ij-UxpPveG'
@@ -45,6 +46,9 @@ def load():
     oGui.addFolder(cGuiElement('Anime', SITE_IDENTIFIER, 'showBasicMenu'), params)
     params.setParam('sType', "asia")
     oGui.addFolder(cGuiElement('Asia', SITE_IDENTIFIER, 'showBasicMenu'), params)
+    if showAdult():
+        params.setParam('sType', "hentai")
+        oGui.addFolder(cGuiElement('Hentai', SITE_IDENTIFIER, 'showHentaiMenu'), params)
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
 
     # Liste abschließen
@@ -60,6 +64,26 @@ def showBasicMenu():
     # Menü erzeugen
     oGui.addFolder(cGuiElement('Filme', SITE_IDENTIFIER, 'showMovieMenu'), params)
     oGui.addFolder(cGuiElement('Serien', SITE_IDENTIFIER, 'showSeriesMenu'), params)
+    oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'), params)
+
+    # Liste abschließen
+    oGui.setEndOfDirectory()
+
+def showHentaiMenu():
+    # Gui-Elemet erzeugen
+    oGui = cGui()
+
+    # ParameterHandler erzeugen
+    params = ParameterHandler()
+    
+    # Typ ermitteln
+    sType = params.getValue('sType')
+
+    # Menü erzeugen
+    params.setParam('sUrl', URL_MAIN + sType)
+    oGui.addFolder(cGuiElement('Neuste Filme', SITE_IDENTIFIER, 'showEntries'), params)
+    params.setParam('sUrl', URL_MAIN + sType + '/?sort=title&order=asc')
+    oGui.addFolder(cGuiElement('Alle Filme', SITE_IDENTIFIER, 'showEntries'), params)
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'), params)
 
     # Liste abschließen
@@ -114,7 +138,7 @@ def showEntries(entryUrl = False, sGui = False):
     if not entryUrl: entryUrl = params.getValue('sUrl')
 
     # HTML-Laden
-    sHtmlContent = cRequestHandler(entryUrl).request()
+    sHtmlContent = _getRequestHandler(getSafeSearchUrl(entryUrl), True).request()
 
     # Thumbnail ermitteln
     pattern = '<img[^>]*src="([^"]*)"[^>]*class="img-responsive[ ]img-rounded"[^>]*>.*?'
@@ -283,7 +307,7 @@ def showEpisodes():
     params = ParameterHandler()
 
     # Seite laden (ungecached)
-    sHtmlContent = _getRequestHandlerForCapacha(params.getValue('entryUrl')).request()
+    sHtmlContent = _getRequestHandler(params.getValue('entryUrl')).request()
 
     # Pattern zum ermitteln der EpisodeId
     pattern = "<a[^>]*href=['\"]#streams_episodes_%d_(\d+)['\"][^>]*>.*?" % int(params.getValue('iReleaseId'))
@@ -328,7 +352,7 @@ def showHosters():
     params = ParameterHandler()
 
     # Seite laden (ungecached)
-    sHtmlContent = _getRequestHandlerForCapacha(params.getValue('entryUrl')).request()
+    sHtmlContent = _getRequestHandler(params.getValue('entryUrl')).request()
 
     # UserID ermitteln
     pattern = "'&ud=(.*?)\">"
@@ -358,7 +382,6 @@ def getHosterUrl(sUrl = False):
     # Array mit einem Eintrag für Hosterliste erzeugen (sprich direkt abspielen)
     results = []
     result = {}
-    result['MovieTitle'] = 'sdfsdfsdfsdf'
     result['streamUrl'] = _resolveLeaveLink(sUrl)
     result['resolved'] = False
 
@@ -404,6 +427,28 @@ def _search(oGui, sSearchText):
     # URL-Übergeben und Ergebniss anzeigen
     showEntries(URL_SEARCH % sSearchText.strip(), oGui)
 
+# Prüfen ob Adult gezeigt werden soll
+def showAdult():
+    oConfig = cConfig()
+    if oConfig.getSetting('showAdult')=='true':    
+        return True
+    return False
+
+# URL dem benötigten SafeSearch anpassen
+def getSafeSearchUrl(url):
+    try:
+        import urlparse
+        from urllib import urlencode
+    except: # For Python 3
+        import urllib.parse as urlparse
+        from urllib.parse import urlencode
+
+    # 'safe_search' entsprechend der xStream einstellunge setzen
+    url += ('&' if urlparse.urlparse(url).query else '?') + urlencode({'safe_search': int(showAdult()) })
+
+    # URL zurück geben
+    return url
+
 '''
 Capatcha und Leaver verarbeitung
 '''
@@ -438,7 +483,7 @@ def _decryptLink(enc, ud):
 
 def _resolveLeaveLink(link):
     # Leave-Link aufrufen
-    sHtmlContent = _getRequestHandlerForCapacha(URL_MAIN + 'leave/' + link).request()
+    sHtmlContent = _getRequestHandler(URL_MAIN + 'leave/' + link).request()
 
     # Entgültigen-Link ermitteln
     sPattern = "link\s+=\s'(.*?)',"
@@ -450,16 +495,16 @@ def _resolveLeaveLink(link):
         time.sleep(15)
 
         # Link verfolgen und Redirect zurückgeben
-        oRequestHandler = _getRequestHandlerForCapacha(aResult[1][0])
+        oRequestHandler = _getRequestHandler(aResult[1][0])
         oRequestHandler.request()
         return oRequestHandler.getRealUrl()
 
 def _sendEnc(enc, ud, response = None):
     # Cookies ermitteln
-    _getRequestHandlerForCapacha('%sassets/pub/js/userdata?ud=%s' % (URL_MAIN, ud)).request()
+    _getRequestHandler('%sassets/pub/js/userdata?ud=%s' % (URL_MAIN, ud)).request()
 
     # Cookie anpassen und captcha AJax zum jeweiligen Link ausführen
-    oRequestHandler = _getRequestHandlerForCapacha(URL_MAIN + 'ajax/captcha')
+    oRequestHandler = _getRequestHandler(URL_MAIN + 'ajax/captcha')
     oRequestHandler.addParameters('enc', enc)
     oRequestHandler.addParameters('response', (response if response else 'nocaptcha'))
 
@@ -475,8 +520,10 @@ def _uncaptcha():
     except ImportError:
         pass
 
-def _getRequestHandlerForCapacha(sUrl):
+def _getRequestHandler(sUrl, bCache = False):
     # RequestHandler ohne Caching und mit User-Agent vom Firefox
-    oRequest = cRequestHandler(sUrl, caching = False)
+    oRequest = cRequestHandler(sUrl, caching = bCache)
     oRequest.addHeaderEntry('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0')
+
+    # Handle zurück geben
     return oRequest
