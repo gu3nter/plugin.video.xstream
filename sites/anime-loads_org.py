@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import time
+import re
 from resources.lib import logger
 from resources.lib.gui.gui import cGui
 from resources.lib.gui.guiElement import cGuiElement
@@ -16,13 +17,18 @@ SITE_ICON = 'anime-loads.png'
 
 # Links definieren
 URL_MAIN = 'http://www.anime-loads.org/'
-URL_SEARCH_ANIME = URL_MAIN + 'search?q=%s&type=anime'
-URL_MOVIES = URL_MAIN + 'anime-movies/'
+URL_SEARCH = URL_MAIN + 'search?q=%s'
+URL_MOVIES = URL_MAIN + '%s-movies/'
 URL_MOVIES_ASC = URL_MOVIES + '?sort=title&order=asc'
-URL_SERIES = URL_MAIN + 'anime-series/'
+URL_SERIES = URL_MAIN + '%s-series/'
 URL_SERIES_ASC = URL_SERIES + '?sort=title&order=asc'
 
+# Liste der Untersützten Typen
+SUPP_TYPES = { "anime", "asia" }
+
+# Site-Key der Seite
 SITE_KEY = '6LdSHggTAAAAAEdkVArXG7E27hyEc2Ij-UxpPveG'
+
 
 def load():
     # Logger-Eintrag
@@ -31,20 +37,30 @@ def load():
     # Gui-Elemet erzeugen
     oGui = cGui()
 
+    # ParameterHandler erzeugen
+    params = ParameterHandler()
+
     # Menü erzeugen
-    oGui.addFolder(cGuiElement('Filme', SITE_IDENTIFIER, 'showMovieMenu'))
-    oGui.addFolder(cGuiElement('Serien', SITE_IDENTIFIER, 'showSeriesMenu'))
+    params.setParam('sType', "anime")
+    oGui.addFolder(cGuiElement('Anime', SITE_IDENTIFIER, 'showBasicMenu'), params)
+    params.setParam('sType', "asia")
+    oGui.addFolder(cGuiElement('Asia', SITE_IDENTIFIER, 'showBasicMenu'), params)
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
 
-    # Debug (zum prüfen des Capatcha)
-    #oParams = ParameterHandler()
-    #oParams.addParams({'sUrl':  URL_SEARCH_ANIME % 'silver spoon 2'})
-    #oGui.addFolder(cGuiElement('***Capatcha-Test***', SITE_IDENTIFIER, 'showEntries'), oParams)
+    # Liste abschließen
+    oGui.setEndOfDirectory()
 
-    # Debug (zum testen von mehreren Releases)
-    #oParams = ParameterHandler()
-    #oParams.addParams({'sUrl': URL_SEARCH_ANIME % 'garden of words'})
-    #oGui.addFolder(cGuiElement('***Mutli-Release-Test***', SITE_IDENTIFIER, 'showEntries'), oParams)
+def showBasicMenu():
+    # Gui-Elemet erzeugen
+    oGui = cGui()
+
+    # ParameterHandler erzeugen
+    params = ParameterHandler()
+
+    # Menü erzeugen
+    oGui.addFolder(cGuiElement('Filme', SITE_IDENTIFIER, 'showMovieMenu'), params)
+    oGui.addFolder(cGuiElement('Serien', SITE_IDENTIFIER, 'showSeriesMenu'), params)
+    oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'), params)
 
     # Liste abschließen
     oGui.setEndOfDirectory()
@@ -53,13 +69,16 @@ def showMovieMenu():
     # Gui-Elemet erzeugen
     oGui = cGui()
 
-    # Parameter setzen
+    # ParameterHandler erzeugen
     params = ParameterHandler()
+    
+    # Typ ermitteln
+    sType = params.getValue('sType')
 
     # Menü erzeugen
-    params.setParam('sUrl', URL_MOVIES)
+    params.setParam('sUrl', URL_MOVIES % sType)
     oGui.addFolder(cGuiElement('Neuste Filme', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_MOVIES_ASC)
+    params.setParam('sUrl', URL_MOVIES_ASC % sType)
     oGui.addFolder(cGuiElement('Alle Filme', SITE_IDENTIFIER, 'showEntries'), params)
 
     # Liste abschließen
@@ -69,13 +88,16 @@ def showSeriesMenu():
     # Gui-Elemet erzeugen
     oGui = cGui()
 
-    # Parameter setzen
+    # ParameterHandler erzeugen
     params = ParameterHandler()
 
+    # Typ ermitteln
+    sType = params.getValue('sType')
+
     # Menü erzeugen
-    params.setParam('sUrl', URL_SERIES)
+    params.setParam('sUrl', URL_SERIES  % sType)
     oGui.addFolder(cGuiElement('Neuste Serien', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_SERIES_ASC)
+    params.setParam('sUrl', URL_SERIES_ASC  % sType)
     oGui.addFolder(cGuiElement('Alle Serien', SITE_IDENTIFIER, 'showEntries'), params)
 
     # Liste abschließen
@@ -119,16 +141,29 @@ def showEntries(entryUrl = False, sGui = False):
         if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
+    # Typ ermitteln
+    sType = params.getValue('sType')
+
     # Prüfen ob es sich um einen Film oder um eine Serie handelt
-    isTvshow = True if URL_SERIES in entryUrl else False
+    isTvshow = True if (URL_SERIES % sType) in entryUrl else False
 
     # Listengröße ermitteln
     total = len (aResult[1])
 
     # Ergebnisse durchlaufen
-    for sThumbnail, sUrl, sName, sTyp, sYear, sEpisodes, sDesc, sGenre in aResult[1]:
+    for sThumbnail, sUrl, sName, sKind, sYear, sEpisodes, sDesc, sGenre in aResult[1]:
+        # Typ des Eintrags anpassen
+        sKind = sKind.strip().lower()
+
+        # Name des Typs ermitteln
+        sKindName = re.compile('\A(\w+)[ ]?').findall(sKind)[0]
+        
+        # Wird der Typ nicht unterstüzt nicht auflisten (z.b Soundtracks, Manga usw.)
+        if sKindName not in SUPP_TYPES:
+            continue
+
         # Prüfen ob es sich um einen Film oder um eine Serie handelt
-        isMovie = True if sTyp.strip() == 'Anime Film' else False
+        isMovie = True if sKind.endswith('film')  or ' ' not in sKind else False
 
         # Decoding für die Beschreibung um Anzeifehler zu vermeiden
         sDesc = cUtil().unescape(sDesc.decode('utf-8')).encode('utf-8').strip()
@@ -323,6 +358,7 @@ def getHosterUrl(sUrl = False):
     # Array mit einem Eintrag für Hosterliste erzeugen (sprich direkt abspielen)
     results = []
     result = {}
+    result['MovieTitle'] = 'sdfsdfsdfsdf'
     result['streamUrl'] = _resolveLeaveLink(sUrl)
     result['resolved'] = False
 
@@ -338,11 +374,21 @@ def showSearch():
     # Gui-Elemet erzeugen
     oGui = cGui()
 
+    # ParameterHandler erzeugen
+    params = ParameterHandler()
+    
     # Tastatur anzeigen und Eingabe ermitteln
     sSearchText = oGui.showKeyBoard()
 
     # Keine Eingabe? => raus hier
     if not sSearchText: return
+    
+    # Typ ermitteln
+    sType = params.getValue('sType')
+
+    # Typ ergänzen
+    if sType:
+        sSearchText = sSearchText.strip() + "&type="+sType
 
     # Suche durchführen
     _search(False, sSearchText)
@@ -356,7 +402,7 @@ def _search(oGui, sSearchText):
     if not sSearchText: return
 
     # URL-Übergeben und Ergebniss anzeigen
-    showEntries(URL_SEARCH_ANIME % sSearchText.strip(), oGui)
+    showEntries(URL_SEARCH % sSearchText.strip(), oGui)
 
 '''
 Capatcha und Leaver verarbeitung
