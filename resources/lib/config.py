@@ -35,6 +35,9 @@ class cConfig:
                 pass
 
     def getSetting(self, sName):
+        if sName == 'metahandler':
+            return ''
+
         if (self.__bIsDharma):
             return self.__oSettings.getSetting(sName)
         else:
