@@ -25,11 +25,7 @@ URL_SERIES = URL_MAIN + '%s-series/'
 URL_SERIES_ASC = URL_SERIES + '?sort=title&order=asc'
 
 # Liste der Untersützten Typen
-SUPP_TYPES = [ "anime", "asia", "hentai"]
-
-# Site-Key der Seite
-SITE_KEY = '6LdSHggTAAAAAEdkVArXG7E27hyEc2Ij-UxpPveG'
-
+SUPP_TYPES = [ "anime", "asia", "hentai" ]
 
 def load():
     # Logger-Eintrag
@@ -243,7 +239,7 @@ def showReleases():
     sName = params.getValue('sName')
 
     # Seite laden
-    sHtmlContent = cRequestHandler(params.getValue('entryUrl')).request()
+    sHtmlContent = _getRequestHandler(params.getValue('entryUrl'), True).request()
 
     # ReleaseId und Name ermitteln
     pattern = "<a[^>]*href=['\"]#stream_(\d+)['\"][^>]*>.*?</i>(.*?)"
@@ -515,10 +511,35 @@ def _uncaptcha():
     try:
         # Capatcha vom URLResolver verarbeiten lassen
         from urlresolver.plugins.lib import recaptcha_v2
-        token = recaptcha_v2.UnCaptchaReCaptcha().processCaptcha(SITE_KEY, lang='de')
+        token = recaptcha_v2.UnCaptchaReCaptcha().processCaptcha(_getSiteKey(), lang='de')
         return token
     except ImportError:
         pass
+
+def _getSiteKey():
+    # Leave-Link aufrufen
+    sHtmlContent = _getRequestHandler(URL_MAIN, True).request()
+
+    # Basis-JS ermitteln
+    pattern = '<script [^>]*src="([^"]*basic.min.js[^"]*)"[^>]*></script[>].*?'
+    aResult = cParser().parse(sHtmlContent, pattern)
+
+    # Falls JS gefunden => Site-Key auslesen
+    if aResult[0]:
+        # JS ermitteln
+        sHtmlContent = _getRequestHandler(aResult[1][0], True).request()
+
+        # Site-Key aus JS ermitteln
+        pattern = "'sitekey':'(.*?)'"
+        aResult = cParser().parse(sHtmlContent, pattern)
+
+        # Site-Key gefunden? => Rückgabe
+        if aResult[0]:
+            return aResult[1][0]
+        else:
+            logger.error("error while getting sitekey: sitekey not found in basic.min.js")
+    else:
+        logger.error("error while getting sitekey: basic.min.js not found")
 
 def _getRequestHandler(sUrl, bCache = False):
     # RequestHandler ohne Caching und mit User-Agent vom Firefox
