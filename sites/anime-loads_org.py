@@ -25,7 +25,7 @@ URL_SERIES = URL_MAIN + '%s-series/'
 URL_SERIES_ASC = URL_SERIES + '?sort=title&order=asc'
 
 # Liste der Untersützten Typen
-SUPP_TYPES = { "anime", "asia", "hentai"}
+SUPP_TYPES = [ "anime", "asia", "hentai"]
 
 # Site-Key der Seite
 SITE_KEY = '6LdSHggTAAAAAEdkVArXG7E27hyEc2Ij-UxpPveG'
