@@ -468,6 +468,8 @@ def _decryptLink(enc, ud):
             hoster ={}
             hoster['link'] = item['link']
             hoster['name'] = entry['hoster_name']
+            if 'part' in item:
+                hoster['displayedName'] = '%s - Part %s' % (entry['hoster_name'],item['part'])
             hosters.append(hoster)
 
     # Sind Hoster vorhanden? => Nachfolgefunktion ergänzen
