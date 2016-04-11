@@ -265,19 +265,14 @@ In den folgenden Ordnern findet Ihr alle Addons von Kodi. Das Addon xStream wird
 - Android 
 	- `/Android/data/org.xbmc.kodi/files/.kodi/addons/`
 	- `/sdcard/Android/data/org.xbmc.kodi/files/.kodi/addons/`  (.kodi ist ein versteckter Ordner)
-
 - iOS
 	- `/private/var/mobile/Library/Preferences/Kodi/addons/`
-
 - Linux 
 	- `~/.kodi/addons/`
-
 - Mac 
 	- `/Users/<your_user_name>/Library/Application Support/Kodi/addons/`
-
 - OpenELEC 
 	- `/storage/.kodi/addons/`
-
 - Windows
 	- `C:\Users\BENUTZERNAME\AppData\Roaming\Kodi\addons`    (AppData ist ein versteckter Ordner)
 
