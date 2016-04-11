@@ -16,6 +16,7 @@ SITE_ICON = 'hdfilme.png'
 
 # Basis-URL's
 URL_MAIN = 'http://hdfilme.tv/'
+URL_LOGIN = URL_MAIN + 'login.html?'
 URL_MOVIES = URL_MAIN + 'movie-movies?'
 URL_SHOWS = URL_MAIN + 'movie-series?'
 URL_SEARCH = URL_MAIN + 'movie/search?key='
@@ -180,11 +181,10 @@ def showEntries(entryUrl = False, sGui = False):
         oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showHosters')
 
         # Bei Serien Title anpassen
-        if isTvshow:
-            res = re.search('(.*?) staffel (\d+)', sName,re.I)
-            if res:
-                oGuiElement.setTVShowTitle(res.group(1))
-                oGuiElement.setTitle('%s - Staffel %s' % (res.group(1),int(res.group(2))))
+        res = re.search('(.*?) staffel (\d+)', sName,re.I)
+        if res:
+            oGuiElement.setTVShowTitle(res.group(1))
+            oGuiElement.setTitle('%s - Staffel %s' % (res.group(1),int(res.group(2))))
 
         # Thumbnail und Beschreibung für Anzeige anpassen
         sThumbnail = sThumbnail.replace('_thumb', '')
@@ -196,12 +196,12 @@ def showEntries(entryUrl = False, sGui = False):
 
         # Eigenschaften setzen und Listeneintrag hinzufügen
         oGuiElement.setThumbnail(sThumbnail)
-        oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
+        oGuiElement.setMediaType('tvshow' if isTvshow or res else 'movie')
         oGuiElement.setDescription(sDesc)
         params.setParam('entryUrl', sUrl)
         params.setParam('sName', sName)
         params.setParam('sThumbnail', sThumbnail)
-        oGui.addFolder(oGuiElement, params, isTvshow, total)
+        oGui.addFolder(oGuiElement, params, True if isTvshow or res else False, total)
 
     # Pattern um die Aktuelle Seite zu ermitteln
     pattern = '<ul[^>]*class="pagination[^>]*>.*'
@@ -235,7 +235,7 @@ def showHosters():
     aResult = cParser().parse(sHtmlContent, pattern)
 
     # Falls Episoden gefunden worden => Episodenauswahl vorschalten
-    if aResult[0] and '-staffel-' in entryUrl or len(aResult[1]) > 1:
+    if aResult[0] and '-staffel-' in entryUrl:
         showEpisodes(aResult[1], params)
     else:
         return getHosters(entryUrl, params.getValue('sName'))
