@@ -13,7 +13,7 @@ from resources.lib.config import cConfig
 
 # Basis-Einträge für xStream
 SITE_IDENTIFIER = 'anime-loads_org'
-SITE_NAME = 'Anime-Loads'
+SITE_NAME = 'AnimeLoads'
 SITE_ICON = 'anime-loads.png'
 
 # Links definieren
