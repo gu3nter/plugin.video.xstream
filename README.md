@@ -20,7 +20,7 @@
     - [3.2 Fehler bei Verwendung der Globalen Suche](#32-fehler-bei-verwendung-der-globalen-suche)
     - [3.3 Fehler bei Verwendung einzelner Webseiten](#33-fehler-bei-verwendung-einzelner-webseiten)
     - [3.4 Fehler bei Verwendung einiger Hoster](#34-fehler-bei-verwendung-einiger-hoster)
-
+    - [3.5 Fehlermeldungen im Betrieb](#35-fehlermeldungen-im-betrieb)
   
 - [4. Fehlerbericht über Log-Datei](#4-fehlerbericht-über-log-datei)
     - [4.1 Allgemeines zur Log-Datei](#41-allgemeines-zur-log-datei)
@@ -154,6 +154,56 @@ Sollte dies der Fall sein, bitte den aktuellen URL Resolver installieren:
 
 Bitte den gewünschten Film auf der Homepage auf Funktion kontrollieren.
 
+
+### 3.5 Fehlermeldungen im Betrieb
+
+- **ImportError:** Bad magic number in bs_finalizer.pyo
+
+	- Status: Problem behoben (Master)
+
+	- Thread: [Link](http://xstream-addon.square7.ch/showthread.php?tid=505)
+
+- **TypeError:** string indices must be integers
+
+	- Status: Problem behoben (Master)
+
+	- Thread: [Link](http://xstream-addon.square7.ch/showthread.php?tid=608)
+
+- **AttributeError:** "...Resolver" object has no attribute "priority"
+
+	- Status: Problem behoben (Master)
+
+	- Thread: [Link](http://xstream-addon.square7.ch/showthread.php?tid=604)
+
+- **KeyError:**'TVShowTitle'
+
+	- Status: Problem behoben (Master)
+
+- **Movie4k funktioniert nicht**
+
+	- Status: Problem behoben (Beta)
+
+	- Thread: [Link](http://xstream-addon.square7.ch/showthread.php?tid=610)
+
+- **Metahandler funktioniert nicht**
+
+	- Status: Problem bekannt, ist in Arbeit
+
+Angaben in (...) = Aktueller "Ort"
+
+- Master  =>  Ist im aktuellen Master Branch, fix kommt in der nächsten Version
+
+- Beta    =>  Ist im Beta Branch  [(siehe: xStream Beta/Nightly)](http://xstream-addon.square7.ch/showthread.php?tid=584)
+- Nightly =>  Ist im Nightly Branch [(siehe: xStream Beta/Nightly)](http://xstream-addon.square7.ch/showthread.php?tid=584)
+
+- **Beim Starten von Xstream kommt folgende Fehlermeldung**
+
+	- "IOError: [Errno socket error] [SSL:
+CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:590)
+File "/Users/Shared/jenkins/workspace/TVOS/tools/depends/xbmc line 579, in __init__
+
+	- Status: in den xStream-Settings die Suche nach Updates ausschalten, dann läuft es wieder
+Updates von Git muss man dann manuell einspielen oder auf Updates über das offizielle xStreamRepo warten
 
 
 ## 4. Fehlerbericht über Log-Datei
