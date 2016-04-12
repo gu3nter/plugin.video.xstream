@@ -18,7 +18,7 @@
 - [3. Bekannte Probleme](#3-bekannte-probleme)
     - [3.1 Fehler bei der Installation](#31-fehler-bei-der-installation)
     - [3.2 Fehler bei Verwendung der Globalen Suche](#32-fehler-bei-verwendung-der-globalen-suche)
-    - [3.3 Fehler beim Öffnen einzelner Webseiten](#33-fehler-beim-oeffnen-einzelner-webseiten)
+    - [3.3 Fehler bei Verwendung einzelner Webseiten](#33-fehler-bei-verwendung-einzelner-webseiten)
     - [3.4 Fehler bei Verwendung einiger Hoster](#34-fehler-bei-verwendung-einiger-hoster)
 
   
@@ -137,7 +137,7 @@ Es kann auch vorkommen, dass bei der Globalen Suche keine Treffer angezeigt werd
 *Bei den Seiten Kinox.to und Movie4K.to haben sie in den Einstellungen die Chance die Domain in z.B. Kinox.tv oder .se zu verwenden. Nutzen sie diese Alternativen, die Seiten zu erreichen!*
 
 
-### 3.3 Fehler beim Öffnen einzelner Webseiten
+### 3.3 Fehler bei Verwendung einzelner Webseiten
 
 Das kann verschiedene Ursachen haben. Meistens liegt es jedoch an der eigentlichen Webseite.
 Denn wenn dort auch nur eine Kleinigkeit geändert wird, kann es schon sein, dass  das Site-Plugin nicht mehr geht.
