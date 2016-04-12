@@ -11,15 +11,15 @@
 - [2. Installation und Konfiguration](#2-installation-und-konfiguration)
     - [2.1 Bezugsquellen zur Installation](#21-bezugsquellen-zur-installation)
     - [2.2 Allgemeine Einstellungen](#22-allgemeine-einstellungen)
-    - [2.3 Webseiten Aktivieren und Deaktivieren](#21-webseiten-aktivieren-und-deaktivieren)
-    - [2.4 Manuelle und automatische Hosterwahl](#23-manuelle-und-automatische-hosterwahl)
+    - [2.3 Webseiten Aktivieren und Deaktivieren](#23-webseiten-aktivieren-und-deaktivieren)
+    - [2.4 Manuelle und automatische Hosterwahl](#24-manuelle-und-automatische-hosterwahl)
  
  
 - [3. Bekannte Probleme](#3-bekannte-probleme)
     - [3.1 Fehler bei der Installation](#31-fehler-bei-der-installation)
     - [3.2 Fehler bei Verwendung der Globalen Suche](#32-fehler-bei-verwendung-der-globalen-suche)
     - [3.3 Fehler beim Öffnen einzelner Webseiten](#33-fehler-beim-öffnen-einzelner-webseiten)
-    - [3.4 Fehler bei Verwendung einiger Hoster](#33-fehler-bei-verwendung-einiger-hoster)
+    - [3.4 Fehler bei Verwendung einiger Hoster](#34-fehler-bei-verwendung-einiger-hoster)
 
   
 - [4. Fehlerbericht über Log-Datei](#4-fehlerbericht-über-log-datei)
