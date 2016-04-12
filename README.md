@@ -137,7 +137,7 @@ Es kann auch vorkommen, dass bei der Globalen Suche keine Treffer angezeigt werd
 *Bei den Seiten Kinox.to und Movie4K.to haben sie in den Einstellungen die Chance die Domain in z.B. Kinox.tv oder .se zu verwenden. Nutzen sie diese Alternativen, die Seiten zu erreichen!*
 
 
-### 3.3. Fehler beim Öffnen einzelner Webseiten
+### 3.3 Fehler beim Öffnen einzelner Webseiten
 
 Das kann verschiedene Ursachen haben. Meistens liegt es jedoch an der eigentlichen Webseite.
 Denn wenn dort auch nur eine Kleinigkeit geändert wird, kann es schon sein, dass  das Site-Plugin nicht mehr geht.
@@ -146,7 +146,7 @@ Die Seite im Browser aufrufen und auf Funktion überprüfen.
 Im Anschluss das Problem schildern.
 
 
-### 3.4. Fehler bei Verwednung einiger Hoster
+### 3.4 Fehler bei Verwednung einiger Hoster
 
 Sollte dies der Fall sein, bitte den aktuellen URL Resolver installieren:
 
