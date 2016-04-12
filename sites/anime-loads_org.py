@@ -134,10 +134,10 @@ def showEntries(entryUrl = False, sGui = False):
     if not entryUrl: entryUrl = params.getValue('sUrl')
 
     # 'safe_search' entsprechend der xStream Einstellung setzen
-    entryUrl += ('&' if '?' in entryUrl else '?') + 'safe_search=' + str(int(showAdult()))
+    safeSearchUrl = entryUrl + ('&' if '?' in entryUrl else '?') + 'safe_search=' + str(int(showAdult()))
 
     # HTML-Laden
-    sHtmlContent = _getRequestHandler(getSafeSearchUrl(entryUrl), True).request()
+    sHtmlContent = _getRequestHandler(safeSearchUrl, True).request()
 
     # Thumbnail ermitteln
     pattern = '<img[^>]*src="([^"]*)"[^>]*class="img-responsive[ ]img-rounded"[^>]*>.*?'
