@@ -133,6 +133,9 @@ def showEntries(entryUrl = False, sGui = False):
     # URL ermitteln falls nicht übergeben
     if not entryUrl: entryUrl = params.getValue('sUrl')
 
+    # 'safe_search' entsprechend der xStream Einstellung setzen
+    entryUrl += ('&' if '?' in entryUrl else '?') + 'safe_search=' + str(int(showAdult()))
+
     # HTML-Laden
     sHtmlContent = _getRequestHandler(getSafeSearchUrl(entryUrl), True).request()
 
@@ -429,21 +432,6 @@ def showAdult():
     if oConfig.getSetting('showAdult')=='true':    
         return True
     return False
-
-# URL dem benötigten SafeSearch anpassen
-def getSafeSearchUrl(url):
-    try:
-        import urlparse
-        from urllib import urlencode
-    except: # For Python 3
-        import urllib.parse as urlparse
-        from urllib.parse import urlencode
-
-    # 'safe_search' entsprechend der xStream einstellunge setzen
-    url += ('&' if urlparse.urlparse(url).query else '?') + urlencode({'safe_search': int(showAdult()) })
-
-    # URL zurück geben
-    return url
 
 '''
 Capatcha und Leaver verarbeitung
