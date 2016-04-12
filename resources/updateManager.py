@@ -1,6 +1,5 @@
 import urllib
 import os
-import time
 import xml.etree.ElementTree as ET
 import json
 import zipfile
@@ -19,12 +18,11 @@ XSTREAM_DIRNAME = os.path.basename(ROOT_DIR)
 
 ## Remote path to download plugin.zip and version file.
 REMOTE_URL_MASTER = "https://github.com/Lynx187/plugin.video.xstream/archive/master.zip"
-REMOTE_URL_BETA = "https://github.com/StoneOffStones/plugin.video.xstream/archive/beta.zip"
+REMOTE_URL_BETA = "https://api.github.com/repos/StoneOffStones/plugin.video.xstream/git/refs/tags/"
 REMOTE_URL_NIGHTLY = "https://github.com/StoneOffStones/plugin.video.xstream/archive/nightly.zip"
 
 ## Full path of the remote file version.
 REMOTE_VERSION_FILE_MASTER = "https://raw.githubusercontent.com/Lynx187/plugin.video.xstream/master/addon.xml"
-REMOTE_VERSION_FILE_BETA = "https://raw.githubusercontent.com/StoneOffStones/plugin.video.xstream/beta/addon.xml"
 
 
 ## Filename of the update File.
@@ -47,10 +45,11 @@ def checkforupdates():
 
     elif cConfig().getSetting('UpdateSetting') == "Beta":
         oLocalVer = getLocalVersion()
-        oRemoteVer = getRemoteVersion(REMOTE_VERSION_FILE_BETA)
+
+        oRemoteVer = getLastBetaVersion()
         
         if oLocalVer is not None and oRemoteVer is not None and oRemoteVer > oLocalVer:
-            update(REMOTE_URL_BETA)
+            update(getLastBetaDownloadUrl())
 
     elif cConfig().getSetting('UpdateSetting') == "Stable":
         oLocalVer = getLocalVersion()
@@ -59,6 +58,16 @@ def checkforupdates():
         if oLocalVer is not None and oRemoteVer is not None and oRemoteVer > oLocalVer:
             update(REMOTE_URL_MASTER)
 
+def getLastBetaVersion():
+    lastUrl = getLastBetaDownloadUrl()
+    return V(lastUrl.split('/')[-1])
+
+def getLastBetaDownloadUrl():
+    apiJson = urllib.urlopen(REMOTE_URL_BETA).read()
+    oJson = json.loads(apiJson)
+
+    lastVersionUrl = next(x['url'] for x in reversed(oJson) if 'beta' in x['url'])
+    return lastVersionUrl.replace('git/','zipball/')
 
 def getLocalVersion():
     xml = open(os.path.join(ROOT_DIR, "addon.xml")).read()
