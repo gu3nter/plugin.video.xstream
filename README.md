@@ -4,34 +4,34 @@
 
 
 - [1. Allgemeines zum Addon](#1-allgemeines-zum-addon)
-    - [1.1 Verfügbare Webseiten](#1.1-verfügbare-webseiten)
-    - [1.2 Rechtliche Konsequenzen bei Nutzung](#1.2-rechtliche-konsequenzen-bei-nutzung)
+    - [1.1 Verfügbare Webseiten](#11-verfügbare-webseiten)
+    - [1.2 Rechtliche Konsequenzen bei Nutzung](#12-rechtliche-konsequenzen-bei-nutzung)
    
    
 - [2. Installation und Konfiguration](#2-installation-und-konfiguration)
-    - [2.1 Bezugsquellen zur Installation](#2.1-bezugsquellen-zur-installation)
-    - [2.2 Allgemeine Einstellungen](#2.2-allgemeine-einstellungen)
-    - [2.3 Webseiten Aktivieren und Deaktivieren](#2.1-webseiten-aktivieren-und-deaktivieren)
-    - [2.4 Manuelle und automatische Hosterwahl](#2.3-manuelle-und-automatische-hosterwahl)
+    - [2.1 Bezugsquellen zur Installation](#21-bezugsquellen-zur-installation)
+    - [2.2 Allgemeine Einstellungen](#22-allgemeine-einstellungen)
+    - [2.3 Webseiten Aktivieren und Deaktivieren](#21-webseiten-aktivieren-und-deaktivieren)
+    - [2.4 Manuelle und automatische Hosterwahl](#23-manuelle-und-automatische-hosterwahl)
  
  
 - [3. Bekannte Probleme](#3-bekannte-probleme)
-    - [3.1 Fehler bei der Installation](#3.1-fehler-bei-der-installation)
-    - [3.2 Fehler bei Verwendung der Globalen Suche](#3.2-fehler-bei-verwendung-der-globalen-suche)
-    - [3.3 Fehler beim Öffnen einzelner Webseiten](#3.3-fehler-beim-öffnen-einzelner-webseiten)
-    - [3.4 Fehler bei Verwendung einiger Hoster](#.3.3-fehler-bei-verwendung-einiger-hoster)
+    - [3.1 Fehler bei der Installation](#31-fehler-bei-der-installation)
+    - [3.2 Fehler bei Verwendung der Globalen Suche](#32-fehler-bei-verwendung-der-globalen-suche)
+    - [3.3 Fehler beim Öffnen einzelner Webseiten](#33-fehler-beim-öffnen-einzelner-webseiten)
+    - [3.4 Fehler bei Verwendung einiger Hoster](#33-fehler-bei-verwendung-einiger-hoster)
 
   
 - [4. Fehlerbericht über Log-Datei](#4-fehlerbericht-über-log-datei)
-    - [4.1 Allgemeines zur Log-Datei](#4.1-allgemeines-zur-log-datei)
-    - [4.2 Speicherort der Log Datei](#4.2-speicherort-der-log-datei)
-    - [4.3 Erstellen und Hochladen der Log-Datei](#4.3-erstellen-und-hochladen-der-log-datei)
+    - [4.1 Allgemeines zur Log-Datei](#41-allgemeines-zur-log-datei)
+    - [4.2 Speicherort der Log Datei](#42-speicherort-der-log-datei)
+    - [4.3 Erstellen und Hochladen der Log-Datei](#43-erstellen-und-hochladen-der-log-datei)
 
     
 - [5. Phyton Dateien](#5-phyton-dateien)
-    - [5.1 Allgemeines zur .py-Datei](#5.1-allgemeines-zur-py-datei)
-    - [5.2 Bearbeiten einer .py-Datei](#5.2-bearbeiten-einer-py-datei)
-    - [5.3 Speicherort der einzelnen Webseiten](#5.3-speicherort-der-einzelnen-webseiten)
+    - [5.1 Allgemeines zur .py-Datei](#51-allgemeines-zur-py-datei)
+    - [5.2 Bearbeiten einer .py-Datei](#52-bearbeiten-einer-py-datei)
+    - [5.3 Speicherort der einzelnen Webseiten](#53-speicherort-der-einzelnen-webseiten)
 
 
 
