@@ -146,7 +146,7 @@ Die Seite im Browser aufrufen und auf Funktion überprüfen.
 Im Anschluss das Problem schildern.
 
 
-### 3.4 Fehler bei Verwednung einiger Hoster
+### 3.4 Fehler bei Verwendung einiger Hoster
 
 Sollte dies der Fall sein, bitte den aktuellen URL Resolver installieren:
 
