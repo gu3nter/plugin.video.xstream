@@ -13,6 +13,8 @@
     - [2.2 Allgemeine Einstellungen](#22-allgemeine-einstellungen)
     - [2.3 Webseiten Aktivieren und Deaktivieren](#23-webseiten-aktivieren-und-deaktivieren)
     - [2.4 Manuelle und automatische Hosterwahl](#24-manuelle-und-automatische-hosterwahl)
+    - [2.5 Metahandler benutzen](#25-metahandler-benutzen)
+    - [2.6 Autoplay Funktion](#26-autoplay-funktion)
  
  
 - [3. Bekannte Probleme](#3-bekannte-probleme)
@@ -102,6 +104,7 @@ Am besten die bevorzugte Sprache auf Deutsch, wenn denn so gewünscht. Sonst am 
 
 Wenn gesehene Filme auf einmal weg sind, liegt das an den Einstellungen im Seitenmenü. Hier die Markierung „gesehene Filme“ deaktivieren!
 
+Ab xStream 2.1.16 gibt es in den Settings eine Auto-Update Funktion. Diese installiert automatisch Änderungen an Seiten usw., welche auf der Entwicklerplattform (Github) durchgeführt werden. Dadurch werden Fehler/Bugs/Error, schnell & einfach behoben.Als Standard ist Master/Stable eingestellt, es kann aber auch Beta/Nightly ausgewählt werden. 
 
 ### 2.3 Webseiten Aktivieren und Deaktivieren
 
@@ -112,6 +115,34 @@ In den Einstellungen, unter dem Menüpunkt *Site-Plugins*, besteht die Möglichk
 
 Wenn man nicht fitt im Bereich der Hosterauswahl ist, verwendet die Automatische Hosterwahl, in dieser werden auch nicht funktionierende Hoster rausgefiltert. Wenn nicht, dann ist die Hosterwahl auch nicht schwer, sondern sehr übersichtlich. Es ist ähnlich wie bei den Seiten Movie4K und Kinox.
 
+- **Hosterliste als Verzeichnis**
+
+Bei Aktivierung wird die Hosterauswahl nicht mehr als Pop-Up-Fenster dargestellt, sondern als normale Verzeichnisliste.
+
+- **Hosterliste prüfen und sortieren**
+
+Bei Aktivierung werden aus der Hosterliste alle nicht unterstützten Hoster entfernt und nach ihrer Priorität (Resolver Settings) sortiert.
+Die Deaktivierung diese Features kann auf leistungsschwachen System (z.B. RPi) einen spürbar schnelleren Ablauf bewirken.
+
+### 2.5 Metahandler benutzen
+
+Bei Aktivierung wird das externe Modul metahandler genutzt um ausführliche Informationen zu den Streams zu sammeln.
+Ermöglicht eine relativ konsistente Verwendung der "gesehen" Markierung.
+Bei erstmaliger Verwendung dauern die Ladevorgänge deutlich länger. Dies liegt daran, dass  zunächst alle neuen Informationen zusätzlich über das Internet abgerufen werden müssen.
+Für schwache Systeme nur bedingt zu empfehlen.
+Muss vom jeweiligen Site-Plugin unterstützt werden, sonst zeigt diese Option keine Funktion.
+
+- **Metahandler ersetzt Infos von Site**
+
+- Bei Aktivierung werden Metainformationen vom  "metahandler" bevorzugt. D.h. Metainformationen die von einem Site-Plugin geliefert wurden werden nicht nur ergänzt sondern auch ersetzt.
+
+- ***ACHTUNG:*** Da viele Seiten nicht sofort genug Informationen bereitstellen um jeden Film eindeutig zu identifizieren kann es vorkommen, dass alle angezeigten Informationen nicht zum tatsächlich verlinkten Film passen.
+
+### 2.6 Autoplay Funktion
+
+Ist diese Option aktiviert, wird keine Hosterliste angezeigt. 
+xStream probiert automatisch alle verfügbaren Hoster aus, bis ein Stream abgespielt werden kann. 
+Die Auswahlreihenfolge der Hoster richtet sich nach deren Priorität. Diese kann unter "Resolver Settings" angepasst werden. Niedrige Werte werden vor hohen Werten gewählt
 
 
 ## 3. Bekannte Probleme
