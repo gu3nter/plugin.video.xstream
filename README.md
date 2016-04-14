@@ -13,7 +13,7 @@
     - [2.2 Allgemeine Einstellungen](#22-allgemeine-einstellungen)
     - [2.3 Webseiten Aktivieren und Deaktivieren](#23-webseiten-aktivieren-und-deaktivieren)
     - [2.4 Manuelle und automatische Hosterwahl](#24-manuelle-und-automatische-hosterwahl)
-    - [2.5 Metahandler benutzen](#25-metahandler-benutzen)
+    - [2.5 Funktion des Metahandlers](#25-funktion-des-metahandlers)
     - [2.6 Autoplay Funktion](#26-autoplay-funktion)
  
  
@@ -93,7 +93,7 @@ Zusätzlich kann man auch die neuste Version von xStream benutzen, indem man die
 
 Um die aktuelle Beta von Version 2.1.16 zu installieren, ist es _vorher_ notwendig das Script für Kodi namens Cryptopy zu installieren und vor dem Entpacken den Zusatz _master_ aus der .zip Datei entfernen:
 
-- [Crypropy Script](https://github.com/StoneOffStones/script.module.cryptopy/archive/master.zip)
+- [Crypropy Script](https://github.com/StoneOffStones/script.module.cryptopy/archive/xstream.zip)
 
 **ACHTUNG!** *Die Beta und Nightly Versionen gelten als Experimentell und werden nicht offiziell unterstützt.*
 
@@ -106,7 +106,7 @@ Wenn gesehene Filme auf einmal weg sind, liegt das an den Einstellungen im Seite
 
 Ab xStream 2.1.16 gibt es in den Settings eine Auto-Update Funktion. Diese installiert automatisch Änderungen an Seiten usw., welche auf der Entwicklerplattform (Github) durchgeführt werden. Dadurch werden Fehler/Bugs/Error, schnell & einfach behoben.Als Standard ist Master/Stable eingestellt, es kann aber auch Beta/Nightly ausgewählt werden. 
 
-### 2.3 Webseiten Aktivieren und Deaktivieren
+### 2.3 Webseiten aktivieren und deaktivieren
 
 In den Einstellungen, unter dem Menüpunkt *Site-Plugins*, besteht die Möglichkeit bestimmte Seiten an bzw. auszuschalten. Dies kann von Nutzen sein, wenn kein Interesse an bestimmten Medien besteht. Diese werden dann auch nicht in der globalen Suche angezeigt.
 
@@ -124,7 +124,7 @@ Bei Aktivierung wird die Hosterauswahl nicht mehr als Pop-Up-Fenster dargestellt
 Bei Aktivierung werden aus der Hosterliste alle nicht unterstützten Hoster entfernt und nach ihrer Priorität (Resolver Settings) sortiert.
 Die Deaktivierung diese Features kann auf leistungsschwachen System (z.B. RPi) einen spürbar schnelleren Ablauf bewirken.
 
-### 2.5 Metahandler benutzen
+### 2.5 Funktion des Metahandlers
 
 Bei Aktivierung wird das externe Modul metahandler genutzt um ausführliche Informationen zu den Streams zu sammeln.
 Ermöglicht eine relativ konsistente Verwendung der "gesehen" Markierung.
