@@ -48,8 +48,8 @@ def showSeries():
             if sChar == '#':
                 if sTitle[0].isalpha(): continue
             elif sTitle[0].lower() != sChar: continue
-        if oParams.getValue('specific') == 'true':
-            guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'randomSearch')
+        if oParams.getValue('specific') == 'Season':
+            guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'randomSeason')
         else:
             guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
         guiElement.setMediaType('tvshow')
@@ -164,7 +164,10 @@ def showSeasons():
             dialogType = 'showCinemaMovies'
         else:
             seasonTitle = '%s - Staffel %s' %(sTitle, seasonNum)
-            dialogType = 'showEpisodes'
+            if params.getValue('specific') == 'Episode':
+                dialogType = 'randomEpisode'
+            else:
+                dialogType = 'showEpisodes'
         guiElement = cGuiElement(seasonTitle, SITE_IDENTIFIER, dialogType)
         guiElement.setMediaType('season')
         guiElement.setSeason(seasonNum)
@@ -234,26 +237,70 @@ def showRandom():
     oGui = cGui()
     oParams = ParameterHandler()
 
-    oParams.setParam('specific', 'true')
-    oGui.addFolder(cGuiElement('Alle Serien', SITE_IDENTIFIER, 'randomSearch'))
-    oGui.addFolder(cGuiElement('Ausgewählte Serie', SITE_IDENTIFIER, 'randomSearch'), oParams)
+    oGui.addFolder(cGuiElement('Zufalls Serie', SITE_IDENTIFIER, 'randomSerie'))
+    oParams.setParam('specific', 'Season')
+    oGui.addFolder(cGuiElement('Zufalls Staffel', SITE_IDENTIFIER, 'randomSeason'), oParams)
+    oParams.setParam('specific', 'Episode')
+    oGui.addFolder(cGuiElement('Zufalls Episode', SITE_IDENTIFIER, 'randomEpisode'), oParams)
 
     oGui.setEndOfDirectory()
 
-def randomSearch():
+def randomSerie():
     oGui = cGui()
     oParams = ParameterHandler()
-    if oParams.getValue('specific') == 'true' and not oParams.getValue('seriesID'):
+    serie = random.choice(_getJsonContent('series'))
+    sTitle = serie["series"].encode('utf-8')
+    guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
+    guiElement.setMediaType('tvshow')
+    guiElement.setThumbnail(URL_COVER % serie["id"])
+    oParams.addParams({'seriesID': str(serie["id"]), 'Title': sTitle})
+    oGui.addFolder(guiElement, oParams, iTotal=1)
+
+    oGui.setEndOfDirectory()
+
+def randomSeason():
+    oGui = cGui()
+    oParams = ParameterHandler()
+    if oParams.getValue('specific') == 'Season' and not oParams.getValue('seriesID'):
         showSeries()
         return
-    elif oParams.getValue('seriesID'):
-        series = {'id' : oParams.getValue('seriesID'), 'series' : oParams.getValue('Title')}
+
+    data = _getJsonContent("series/%s/1" % oParams.getValue('seriesID'))
+
+    seasons = int(data["series"]["seasons"])+1
+
+    randomSeason = random.randrange(1, seasons, 1)
+
+    seasonNum = str(randomSeason)
+    seasonTitle = '%s - Staffel %s' % (oParams.getValue('Title'), seasonNum)
+    dialogType = 'showEpisodes'
+    guiElement = cGuiElement(seasonTitle, SITE_IDENTIFIER, dialogType)
+    guiElement.setMediaType('season')
+    guiElement.setSeason(seasonNum)
+    guiElement.setTVShowTitle(oParams.getValue('Title'))
+
+    oParams.setParam('Season', seasonNum)
+    guiElement.setThumbnail(URL_COVER % data["series"]["id"])
+    oGui.addFolder(guiElement, oParams, iTotal=1)
+
+    oGui.setEndOfDirectory()
+
+def randomEpisode():
+    oGui = cGui()
+    oParams = ParameterHandler()
+    if oParams.getValue('specific') == 'Episode' and not oParams.getValue('seriesID'):
+        showSeries()
+        return
+    elif oParams.getValue('seriesID') and not oParams.getValue('Season'):
+        showSeasons()
+        return
     else:
-        series = random.choice(_getJsonContent('series'))
+        series = {'id': oParams.getValue('seriesID'), 'series': oParams.getValue('Title')}
+
     season = _getJsonContent("series/%s/1" % series['id'])
     randomepisode = (random.choice(season['epi']))['epi']
 
-    Title = season['series']['series'].encode('utf-8') + ' - ' + \
+    Title = season['series']['series'].encode('utf-8') + ' - Staffel ' + str(season['season']) + ' - ' +\
             str(filter(lambda person: person['epi'] == randomepisode, season['epi'])[0]['german']).encode('utf-8')
     guiElement = cGuiElement(Title, SITE_IDENTIFIER, 'showHosters')
     guiElement.setMediaType('episode')
