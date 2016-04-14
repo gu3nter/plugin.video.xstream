@@ -89,9 +89,9 @@ Zusätzlich kann man auch die neuste Version von xStream benutzen, indem man die
 - [Beta-Branch bei GitHub](https://github.com/StoneOffStones/plugin.video.xstream/tree/beta)
 - [Nightly-Branch bei GitHub](https://github.com/StoneOffStones/plugin.video.xstream/tree/nightly)
 
-Um die aktuelle Beta von Version 2.1.16 zu installieren, ist es _vorher_ notwendig das Script für Kodi namens Cryptopy zu installieren:
+Um die aktuelle Beta von Version 2.1.16 zu installieren, ist es _vorher_ notwendig das Script für Kodi namens Cryptopy zu installieren und vor dem Entpacken den Zusatz _master_ aus der .zip Datei entfernen:
 
-- [Crypropy Script](https://www.github.com/StoneOffStones/script.modul.cryptopy/archive/xstream.zip)
+- [Crypropy Script](https://github.com/StoneOffStones/script.module.cryptopy/archive/master.zip)
 
 **ACHTUNG!** *Die Beta und Nightly Versionen gelten als Experimentell und werden nicht offiziell unterstützt.*
 
@@ -121,9 +121,9 @@ Wenn man nicht fitt im Bereich der Hosterauswahl ist, verwendet die Automatische
 
 Fehler können verschiedene Ursachen haben. Bei Hilfe bitte immer folgendes bekannt geben:
 Log, Kodi Version, Betriebssystem, xStream Version, genaue Fehlerbeschreibung!
-Wird die aktuelle 2.1.16 Beta installiert, ist es vorher notwendig das script.modul Cryptopy  zu installieren:
+Wird die aktuelle 2.1.16 Beta installiert, ist es vorher notwendig das script.modul Cryptopy zu installieren und vor dem Entpacken den Zusatz _master_ aus der .zip entfernen::
 
-- https://www.github.com/StoneOffStones/script.modul.cryptopy/archive/xstream.zip
+- [https://github.com/StoneOffStones/script.module.cryptopy/archive/master.zip](https://github.com/StoneOffStones/script.module.cryptopy/archive/master.zip)
 
 Bitte, schauen, ob der Fehler in einem früheren Post schon beantwortet wurde!
 Es kann auch eine fehlerhafte Datei vorliegen, oder die .zip ist falsch aufbereitet.
