@@ -83,15 +83,10 @@ def updateMeta(params):
             if mediaType == 'movie':
                 items.append(str(item['title'].encode('utf-8'))+' ('+str(item['year'])+')')
             elif mediaType == 'tvshow':
-<<<<<<< HEAD
-                if len(item)>2:items.append(str(item[1])+' (IMDb-ID: '+str(item[2])+')')
-                else: items.append(str(item[1]))
-=======
                 if 'FirstAired' in item:
                     items.append(item['SeriesName']+' ('+str(item['FirstAired'])[:4]+') ' + item.get('language',''))
                 else:
                     items.append(item['SeriesName']+' '+item.get('language',''))
->>>>>>> Lynx187/master
             else:
                 return
         index = dialog.select('Film/Serie wählen', items)
@@ -159,19 +154,13 @@ def parseUrl():
         playMode = params.getValue('playMode')
         isHoster = params.getValue('isHoster')
         url = params.getValue('url')
-<<<<<<< HEAD
         manual = params.exist('manual')  
            
         if cConfig().getSetting('autoPlay')=='true' and playMode != 'jd' and playMode != 'pyload' and not manual:
-=======
-        manual = params.exist('manual')
-        if cConfig().getSetting('hosterSelect')=='auto' and playMode != 'jd' and playMode != 'pyload' and not manual:
->>>>>>> Lynx187/master
             cHosterGui().streamAuto(playMode, sSiteName, sFunction)
         else:
             cHosterGui().stream(playMode, sSiteName, sFunction, url)
         return
-<<<<<<< HEAD
         
     else:    
         logger.info("Call function '%s' from '%s'" % (sFunction, sSiteName))
@@ -210,11 +199,6 @@ def parseUrl():
             plugin = __import__(sSiteName, globals(), locals())
             function = getattr(plugin, sFunction)
             function()
-    
-  else:
-      xbmc.executebuiltin('XBMC.RunPlugin(%s?function=clearCache)' % sys.argv[0])
-      # As a default if no site was specified, we run the default starting gui with all plugins
-      showMainMenu(sFunction)
 
 def showMainMenu(sFunction):
     if cConfig().getSetting('UpdateSetting') != 'Off':
@@ -232,123 +216,38 @@ def showMainMenu(sFunction):
     oGui.addFolder(oGuiElement)
 
     if len(aPlugins) <= 0:
-      logger.info("No Plugins found")
-      # Open the settings dialog to choose a plugin that could be enabled
-      oGui.showInfo("xStream", "No Site-Plugins enabled", 10)
-      oGui.openSettings()
-      oGui.updateDirectory()
-    else:
-      # Create a gui element for every plugin found
-      for aPlugin in sorted(aPlugins, key=lambda k: k['id']):
-=======
-    logger.info("Call function '%s' from '%s'" % (sFunction, sSiteName))
-    # If the hoster gui is called, run the function on it and return
-    if sSiteName == 'cHosterGui':
-        showHosterGui(sFunction)
-    # If global search is called
-    elif sSiteName == 'globalSearch':
-        searchGlobal()
-    elif sSiteName == 'favGui':
-        showFavGui(sFunction)
-    # If addon settings are called
-    elif sSiteName == 'xStream':
-        oGui = cGui()
-        oGui.openSettings()
-        oGui.updateDirectory()
-    # If the urlresolver settings are called
-    elif sSiteName == 'urlresolver':
-        import urlresolver
-        urlresolver.display_settings()
-    # If metahandler settings are called
-    elif sSiteName == 'metahandler':
-        import metahandler
-        metahandler.display_settings()
-    else:
-        # Else load any other site as plugin and run the function
-        plugin = __import__(sSiteName, globals(), locals())
-        function = getattr(plugin, sFunction)
-        function()
-
-def showMainMenu(sFunction):
-    oGui = cGui()
-    oPluginHandler = cPluginHandler()
-    aPlugins = oPluginHandler.getAvailablePlugins()
-    if not aPlugins:
         logger.info("No Plugins found")
         # Open the settings dialog to choose a plugin that could be enabled
+        oGui.showInfo("xStream", "No Site-Plugins enabled", 10)
         oGui.openSettings()
         oGui.updateDirectory()
     else:
         # Create a gui element for every plugin found
-        for aPlugin in aPlugins:
+        for aPlugin in sorted(aPlugins, key=lambda k: k['id']):
             oGuiElement = cGuiElement()
             oGuiElement.setTitle(aPlugin['name'])
             oGuiElement.setSiteName(aPlugin['id'])
             oGuiElement.setFunction(sFunction)
-            if 'icon' in aPlugin and aPlugin['icon']:
+            if aPlugin['icon'] != '':
                 oGuiElement.setThumbnail(aPlugin['icon'])
             oGui.addFolder(oGuiElement)
 
-        # Create a gui element for global search
+        # Create a gui element for Settingsfolder
         oGuiElement = cGuiElement()
-        oGuiElement.setTitle("Globale Suche")
-        oGuiElement.setSiteName("globalSearch")
-        oGuiElement.setFunction("globalSearch")
-        #oGuiElement.setThumbnail("DefaultAddonService.png")
+        oGuiElement.setTitle("Settings")
+        oGuiElement.setSiteName("Settings")
+        oGuiElement.setFunction("showSettingsFolder")
+        oGuiElement.setThumbnail("DefaultAddonService.png")
         oGui.addFolder(oGuiElement)
 
         # Create a gui element for favorites
-        #oGuiElement = cGuiElement()
-        #oGuiElement.setTitle("Favorites")
-        #oGuiElement.setSiteName("FavGui")
-        #oGuiElement.setFunction("showFavs")
-        #oGuiElement.setThumbnail("DefaultAddonService.png")
-        #oGui.addFolder(oGuiElement)
+        # oGuiElement = cGuiElement()
+        # oGuiElement.setTitle("Favorites")
+        # oGuiElement.setSiteName("FavGui")
+        # oGuiElement.setFunction("showFavs")
+        # oGuiElement.setThumbnail("DefaultAddonService.png")
+        # oGui.addFolder(oGuiElement)
 
-        # Create a gui element for addon settings
-        oGuiElement = cGuiElement()
-        oGuiElement.setTitle("xStream Settings")
-        oGuiElement.setSiteName("xStream")
-        oGuiElement.setFunction("display_settings")
-        oGuiElement.setThumbnail("DefaultAddonService.png")
-        oGui.addFolder(oGuiElement)
-
-        # Create a gui element for urlresolver settings
->>>>>>> Lynx187/master
-        oGuiElement = cGuiElement()
-        oGuiElement.setTitle("Resolver Settings")
-        oGuiElement.setSiteName("urlresolver")
-        oGuiElement.setFunction("display_settings")
-        oGuiElement.setThumbnail("DefaultAddonService.png")
-        oGui.addFolder(oGuiElement)
-
-<<<<<<< HEAD
-      # Create a gui element for Settingsfolder
-      oGuiElement = cGuiElement()
-      oGuiElement.setTitle("Settings")
-      oGuiElement.setSiteName("Settings")
-      oGuiElement.setFunction("showSettingsFolder")
-      oGuiElement.setThumbnail("DefaultAddonService.png")
-      oGui.addFolder(oGuiElement)
-
-      # Create a gui element for favorites
-      # oGuiElement = cGuiElement()
-      # oGuiElement.setTitle("Favorites")
-      # oGuiElement.setSiteName("FavGui")
-      # oGuiElement.setFunction("showFavs")
-      # oGuiElement.setThumbnail("DefaultAddonService.png")
-      # oGui.addFolder(oGuiElement)
-
-=======
-        # Create a gui element for metahandler settings
-        if cConfig().getSetting('metahandler')=='true':
-            oGuiElement = cGuiElement()
-            oGuiElement.setTitle("Metahandler Settings")
-            oGuiElement.setSiteName("metahandler")
-            oGuiElement.setFunction("display_settings")
-            oGuiElement.setThumbnail("DefaultAddonService.png")
-            oGui.addFolder(oGuiElement)
->>>>>>> Lynx187/master
     oGui.setEndOfDirectory()
 
 def showHosterGui(sFunction):

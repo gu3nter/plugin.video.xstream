@@ -4,17 +4,15 @@ from resources.lib.config import cConfig
 from resources.lib.gui.gui import cGui
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.player import cPlayer
-from distutils.version import LooseVersion as V
 import xbmc, xbmcgui
 import logger
-#test
+# test
 import xbmcplugin
-#import sys
+
 
 class cHosterGui:
-
     SITE_NAME = 'cHosterGui'
-    
+
     def __init__(self):
         self.userAgent = "|User-Agent=Mozilla/5.0 (Windows; U; Windows NT 5.1; de-DE; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3"
         self.maxHoster = int(cConfig().getSetting('maxHoster'))
@@ -31,7 +29,7 @@ class cHosterGui:
         fileName = params.getValue('MovieTitle')
         if not fileName:
             fileName = params.getValue('Title')
-        if not fileName: #only temporary
+        if not fileName:  # only temporary
             fileName = params.getValue('sMovieTitle')
         if not fileName:
             fileName = params.getValue('title')
@@ -55,21 +53,22 @@ class cHosterGui:
         else:
             oGui.showError('xStream', 'kein Hosterlink übergeben', 5)
             return False
-        #resolver response
+        # resolver response
         if hasattr(link, 'msg'):
             msg = link.msg
-        else: msg = False
+        else:
+            msg = False
         if link != False and not msg:
             data['link'] = link
             return data
         # error during resolving
         if not msg:
             msg = 'Stream nicht mehr verfügbar oder Link fehlerhaft'
-            oGui.showError('xStream',str(msg),7)
+            oGui.showError('xStream', str(msg), 7)
         if hasattr(link, 'code'):
-            logger.info(str(msg) +' UnresolveableCode: '+ str(link.code))
+            logger.info(str(msg) + ' UnresolveableCode: ' + str(link.code))
         else:
-            logger.info(str(msg) +' UnresolveableCode: - ')
+            logger.info(str(msg) + ' UnresolveableCode: - ')
         '''
             UnresolveableCode
             0: Unknown Error
@@ -88,14 +87,14 @@ class cHosterGui:
         if '|' in link:
             return link + '&' + self.userAgent
         else:
-            return link	+ '|' + self.userAgent
+            return link + '|' + self.userAgent
 
-    def play(self, siteResult=False):      
+    def play(self, siteResult=False):
         oGui = cGui()
         logger.info('attempt to play file')
         data = self._getInfoAndResolve(siteResult)
         if not data: return False
-        logger.info('play file link: ' + str(data['link']))	
+        logger.info('play file link: ' + str(data['link']))
         listItem = xbmcgui.ListItem(path=self._addUserAgent(data['link']))
         info = {}
         info['Title'] = data['title']
@@ -110,16 +109,16 @@ class cHosterGui:
             try:
                 self.dialog.close()
             except:
-                pass      
+                pass
         listItem.setInfo(type="Video", infoLabels=info)
         listItem.setProperty('IsPlayable', 'true')
 
         pluginHandle = oGui.pluginHandle
         xbmcplugin.setResolvedUrl(pluginHandle, True, listItem)
-        res = oPlayer.startPlayer() #Necessary for autoStream
+        res = oPlayer.startPlayer()  # Necessary for autoStream
         return res
-        
-    def addToPlaylist(self, siteResult = False):
+
+    def addToPlaylist(self, siteResult=False):
         oGui = cGui()
         logger.info('attempt addToPlaylist')
         data = self._getInfoAndResolve(siteResult)
@@ -143,97 +142,86 @@ class cHosterGui:
         oGui.showInfo('Playlist', 'Stream wurde hinzugefügt', 5);
         return True
 
-    def download(self, siteResult = False):
+    def download(self, siteResult=False):
         from resources.lib.download import cDownload
         logger.info('attempt download')
         data = self._getInfoAndResolve(siteResult)
         if not data: return False
 
-<<<<<<< HEAD
         logger.info('download file link: ' + str(data['link']))
-=======
-        logger.info('download file link: ' + data['link'])
->>>>>>> Lynx187/master
         if self.dialog:
             self.dialog.close()
         oDownload = cDownload()
         oDownload.download(data['link'], data['title'])
         return True
 
-    def sendToPyLoad(self, siteResult = False):
+    def sendToPyLoad(self, siteResult=False):
         from resources.lib.handler.pyLoadHandler import cPyLoadHandler
         logger.info('attempt download with pyLoad')
         data = self._getInfoAndResolve(siteResult)
         if not data: return False
-        cPyLoadHandler().sendToPyLoad(data['title'],data['link'])
+        cPyLoadHandler().sendToPyLoad(data['title'], data['link'])
         return True
 
-    def sendToJDownloader(self, sMediaUrl = False):
+    def sendToJDownloader(self, sMediaUrl=False):
         from resources.lib.handler.jdownloaderHandler import cJDownloaderHandler
         params = ParameterHandler()
-        if not sMediaUrl:            
-            sMediaUrl = params.getValue('sMediaUrl')            
+        if not sMediaUrl:
+            sMediaUrl = params.getValue('sMediaUrl')
         sFileName = params.getValue('sFileName')
         if self.dialog:
             self.dialog.close()
-        logger.info('call send to JDownloader: ' + sMediaUrl)       
+        logger.info('call send to JDownloader: ' + sMediaUrl)
         cJDownloaderHandler().sendToJDownloader(sMediaUrl)
 
-    def __getPriorities(self, hosterList, filter = True):
+    def __getPriorities(self, hosterList, filter=True):
         '''
         Sort hosters based on their resolvers priority.
         '''
         import urlresolver
         #          
         ranking = []
-        #handles multihosters but is about 10 times slower
+        # handles multihosters but is about 10 times slower
         for hoster in hosterList:
             # accept hoster which is marked as resolveable by sitePlugin
-            if hoster.get('resolveable',False):
-                ranking.append([0,hoster])
+            if hoster.get('resolveable', False):
+                ranking.append([0, hoster])
                 continue
             source = urlresolver.HostedMediaFile(host=hoster['name'].lower(), media_id='dummy')
             if source:
                 priority = False
                 for resolver in source._HostedMediaFile__resolvers:
-                    #prefer individual priority
+                    # prefer individual priority
                     if resolver.domains[0] != '*':
-<<<<<<< HEAD
-                        if V(urlresolver.common.addon_version) > V("2.10.12"):
-                            priority = resolver._get_priority()
-                        else:
-                            priority = resolver.priority
-=======
                         if hasattr(resolver, 'priority'):
                             priority = resolver.priority
                         else:
                             priority = resolver._get_priority()
->>>>>>> Lynx187/master
                         break
                     if not priority:
                         if hasattr(resolver, 'priority'):
                             priority = resolver.priority
                         else:
-                            priority = resolver._get_priority()                        
+                            priority = resolver._get_priority()
                 if priority:
-                    ranking.append([priority,hoster])
+                    ranking.append([priority, hoster])
             elif not filter:
-                ranking.append([999,hoster])
+                ranking.append([999, hoster])
 
         ranking.sort()
         hosterQueue = []
-        for i,hoster in ranking:
+        for i, hoster in ranking:
             hosterQueue.append(hoster)
         return hosterQueue
 
     def stream(self, playMode, siteName, function, url):
         self.dialog = xbmcgui.DialogProgress()
-        self.dialog.create('xStream',"get stream/hoster")
-        #load site as plugin and run the function
-        self.dialog.update(5,'import plugin...')
+        self.dialog.create('xStream', "get stream/hoster")
+        # load site as plugin and run the function
+        self.dialog.update(5, 'import plugin...')
         plugin = __import__(siteName, globals(), locals())
         function = getattr(plugin, function)
-        self.dialog.update(10,'catch links...')
+        self.dialog.update(10, 'catch links...')
         if url:
             siteResult = function(url)
         else:
@@ -241,7 +229,7 @@ class cHosterGui:
         self.dialog.update(40)
         if not siteResult:
             self.dialog.close()
-            cGui().showInfo('xStream','stream/hoster not available')
+            cGui().showInfo('xStream', 'stream/hoster not available')
             return
         # if result is not a list, make in one
         if not type(siteResult) is list:
@@ -254,25 +242,25 @@ class cHosterGui:
             del siteResult[-1]
             if not siteResult:
                 self.dialog.close()
-                cGui().showInfo('xStream','no hoster available')
+                cGui().showInfo('xStream', 'no hoster available')
                 return
 
-            self.dialog.update(60,'prepare hosterlist..')
-            if (playMode !='jd') and (playMode != 'pyload') and \
-                            cConfig().getSetting('presortHoster')=='true':
+            self.dialog.update(60, 'prepare hosterlist..')
+            if (playMode != 'jd') and (playMode != 'pyload') and \
+                            cConfig().getSetting('presortHoster') == 'true':
                 # filter and sort hosters
                 siteResult = self.__getPriorities(siteResult)
             if not siteResult:
                 self.dialog.close()
-                cGui().showInfo('xStream','no supported hoster available')
+                cGui().showInfo('xStream', 'no supported hoster available')
                 return False
             self.dialog.update(90)
-            #self.dialog.close()
+            # self.dialog.close()
             if len(siteResult) > self.maxHoster:
-                siteResult = siteResult[:self.maxHoster-1]
-            if len(siteResult)>1:
-                #choose hoster
-                if cConfig().getSetting('hosterSelect')=='list':
+                siteResult = siteResult[:self.maxHoster - 1]
+            if len(siteResult) > 1:
+                # choose hoster
+                if cConfig().getSetting('hosterSelect') == 'list':
                     self.showHosterFolder(siteResult, siteName, functionName)
                     return
                 siteResult = self._chooseHoster(siteResult)
@@ -292,7 +280,7 @@ class cHosterGui:
                 siteResult = temp
 
         # choose part
-        if len(siteResult)>1:
+        if len(siteResult) > 1:
             siteResult = self._choosePart(siteResult)
             if not siteResult:
                 self.dialog.close()
@@ -301,8 +289,8 @@ class cHosterGui:
             siteResult = siteResult[0]
 
         self.dialog = xbmcgui.DialogProgress()
-        self.dialog.create('xStream',' ')
-        self.dialog.update(95,'start opening stream..')
+        self.dialog.create('xStream', ' ')
+        self.dialog.update(95, 'start opening stream..')
 
         if playMode == 'play':
             self.play(siteResult)
@@ -314,7 +302,7 @@ class cHosterGui:
             self.sendToJDownloader(siteResult['streamUrl'])
         elif playMode == 'pyload':
             self.sendToPyLoad(siteResult)
-    
+
     def _chooseHoster(self, siteResult):
         dialog = xbmcgui.Dialog()
         titles = []
@@ -340,15 +328,15 @@ class cHosterGui:
             else:
                 name = hoster['name']
             oGuiElement = cGuiElement(name, siteName, functionName)
-            params.setParam('url',hoster['link'])
-            params.setParam('isHoster','true')
-            oGui.addFolder(oGuiElement, params, iTotal = total, isHoster = True)
+            params.setParam('url', hoster['link'])
+            params.setParam('isHoster', 'true')
+            oGui.addFolder(oGuiElement, params, iTotal=total, isHoster=True)
         oGui.setEndOfDirectory()
 
     def _choosePart(self, siteResult):
         self.dialog = xbmcgui.Dialog()
         titles = []
-        for result in siteResult:                
+        for result in siteResult:
             titles.append(result['title'])
         index = self.dialog.select('Part wählen', titles)
         if index > -1:
@@ -357,20 +345,19 @@ class cHosterGui:
         else:
             return False
 
-        
     def streamAuto(self, playMode, siteName, function):
         logger.info('auto stream initiated')
         self.dialog = xbmcgui.DialogProgress()
-        self.dialog.create('xStream',"get stream/hoster")
-        #load site as plugin and run the function
-        self.dialog.update(5,'import plugin...')
+        self.dialog.create('xStream', "get stream/hoster")
+        # load site as plugin and run the function
+        self.dialog.update(5, 'import plugin...')
         plugin = __import__(siteName, globals(), locals())
         function = getattr(plugin, function)
-        self.dialog.update(10,'catch links...')
+        self.dialog.update(10, 'catch links...')
         siteResult = function()
         if not siteResult:
             self.dialog.close()
-            cGui().showInfo('xStream','stream/hoster not available')
+            cGui().showInfo('xStream', 'stream/hoster not available')
             return False
         # if result is not a list, make in one
         if not type(siteResult) is list:
@@ -379,36 +366,36 @@ class cHosterGui:
             siteResult = temp
         # field "name" marks hosters
         if 'name' in siteResult[0]:
-            self.dialog.update(90,'prepare hosterlist..') 
+            self.dialog.update(90, 'prepare hosterlist..')
             functionName = siteResult[-1]
-            del siteResult[-1]             
+            del siteResult[-1]
             hosters = self.__getPriorities(siteResult)
             if not hosters:
                 self.dialog.close()
-                cGui().showInfo('xStream','no supported hoster available')
+                cGui().showInfo('xStream', 'no supported hoster available')
                 return False
             if len(siteResult) > self.maxHoster:
-                siteResult = siteResult[:self.maxHoster-1]
+                siteResult = siteResult[:self.maxHoster - 1]
             check = False
-            self.dialog.create('xStream','try hosters...')
+            self.dialog.create('xStream', 'try hosters...')
             total = len(hosters)
             count = 0
-            for hoster in hosters:               
+            for hoster in hosters:
                 if self.dialog.iscanceled() or xbmc.abortRequested or check: return
                 count = count + 1
-                percent = count*100/total
+                percent = count * 100 / total
                 try:
                     logger.info('try hoster %s' % hoster['name'])
-                    self.dialog.create('xStream','try hosters...')
-                    self.dialog.update(percent,'try hoster %s' % hoster['name'])
+                    self.dialog.create('xStream', 'try hosters...')
+                    self.dialog.update(percent, 'try hoster %s' % hoster['name'])
                     # get stream links
                     function = getattr(plugin, functionName)
                     siteResult = function(hoster['link'])
                     check = self.__autoEnqueue(siteResult, playMode)
-                    if check:                      
+                    if check:
                         return True
                 except:
-                    self.dialog.update(percent,'hoster %s failed' % hoster['name'])
+                    self.dialog.update(percent, 'hoster %s failed' % hoster['name'])
                     logger.info('playback with hoster %s failed' % hoster['name'])
         # field "resolved" marks streamlinks
         elif 'resolved' in siteResult[0]:
@@ -420,19 +407,18 @@ class cHosterGui:
                 except:
                     pass
 
-
     def __autoEnqueue(self, partList, playMode):
         # choose part
         if not partList:
             return False
-        for i in range(len(partList)-1,-1,-1):
+        for i in range(len(partList) - 1, -1, -1):
             try:
-                if playMode == 'play' and i==0:
+                if playMode == 'play' and i == 0:
                     if not self.play(partList[i]):
                         return False
                 elif playMode == 'download':
                     self.download(partList[i])
-                elif playMode == 'enqueue' or (playMode=='play' and i>0):
+                elif playMode == 'enqueue' or (playMode == 'play' and i > 0):
                     self.addToPlaylist(partList[i])
             except:
                 return False
@@ -441,7 +427,6 @@ class cHosterGui:
 
 
 class Hoster:
-
     def __init__(self, name, link):
         self.name = name
         self.link = link

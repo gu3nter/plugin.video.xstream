@@ -78,12 +78,7 @@ def showGenreList():
     entryUrl = params.getValue('sUrl')
 
     # Movie-Seite laden
-<<<<<<< HEAD
-    oRequestHandler = cRequestHandler(entryUrl)
-    sHtmlContent = oRequestHandler.request()
-=======
     sHtmlContent = cRequestHandler(entryUrl).request()
->>>>>>> Lynx187/master
 
     # Select für Generes Laden
     pattern = '<select[^>]*name="cat"[^>]*>(.*?)</select[>].*?'
@@ -122,23 +117,10 @@ def showEntries(entryUrl = False, sGui = False):
 
     # URL ermitteln falls nicht übergeben
     if not entryUrl: entryUrl = params.getValue('sUrl')
-<<<<<<< HEAD
 
     # Aktuelle Seite ermitteln und ggf. URL anpassen
     iPage = int(params.getValue('page'))
     oRequest = cRequestHandler(entryUrl + '&per_page=' + str(iPage * 50) if iPage > 0 else entryUrl)
-
-    # Daten ermitteln
-    sHtmlContent = oRequest.request()
-    
-    # Prüfen ob es sich um einen Film oder um eine Serie handelt
-    isTvshow = True if URL_SHOWS in entryUrl else False
-=======
-
-    # Aktuelle Seite ermitteln und ggf. URL anpassen
-    iPage = int(params.getValue('page'))
-    oRequest = cRequestHandler(entryUrl + '&per_page=' + str(iPage * 50) if iPage > 0 else entryUrl)
->>>>>>> Lynx187/master
 
     # Daten ermitteln
     sHtmlContent = oRequest.request()
@@ -159,18 +141,12 @@ def showEntries(entryUrl = False, sGui = False):
     pattern = '<div[^>]*class="box-product clearfix"[^>]*>\s*?'
     pattern += '<a[^>]*href="([^"]*)"[^>]*>.*?'
 
-<<<<<<< HEAD
-    # Rhumbnail ermitteln
-    pattern += '<img[^>]*src="([^"]*)"[^>]*>.*?'
-
-=======
     # Thumbnail ermitteln
     pattern += '<img[^>]*src="([^"]*)"[^>]*>.*?'
 
     # Prüfung auf Episoden-Einträge
     pattern += '(?:<div[^>]*class="episode"[^>]*>([^"]*)</div>.*?)?'
 
->>>>>>> Lynx187/master
     # Name ermitteln
     pattern += '<div[^>]*class="popover-title"[^>]*>.*?'
     pattern += '<span[^>]*class="name"[^>]*>([^<>]*)</span>.*?'
@@ -190,36 +166,22 @@ def showEntries(entryUrl = False, sGui = False):
     total = len (aResult[1])
 
     # Alle Ergebnisse durchlaufen
-<<<<<<< HEAD
-    for sUrl, sThumbnail, sName, sDesc in aResult[1]:
-=======
     for sUrl, sThumbnail, sEpisodeNrs, sName, sDesc in aResult[1]:
->>>>>>> Lynx187/master
         # Bei Filmen das Jahr vom Title trennen
         aYear = re.compile("(.*?)\((\d*)\)").findall(sName)
         iYear = False
         for name, year in aYear:
             sName = name
             iYear = year
-<<<<<<< HEAD
-            break;
-=======
             break
 
         # prüfen ob der Eintrag ein Serie/Staffel ist
         isTvshow = True if sEpisodeNrs else False
->>>>>>> Lynx187/master
 
         # Listen-Eintrag erzeugen
         oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showHosters')
 
         # Bei Serien Title anpassen
-<<<<<<< HEAD
-        res = re.search('(.*?) staffel (\d+)', sName,re.I)
-        if res:
-            oGuiElement.setTVShowTitle(res.group(1))
-            oGuiElement.setTitle('%s - Staffel %s' % (res.group(1),int(res.group(2))))
-=======
         res = re.search('(.*?)\s(?:staf+el|s)\s*(\d+)', sName,re.I)
         if res:
             oGuiElement.setTVShowTitle(res.group(1))
@@ -229,7 +191,6 @@ def showEntries(entryUrl = False, sGui = False):
             oGuiElement.setTVShowTitle(sName)
             oGuiElement.setTitle('%s - Staffel %s' % (sName,"1"))
             params.setParam('sSeason', "1")
->>>>>>> Lynx187/master
 
         # Thumbnail und Beschreibung für Anzeige anpassen
         sThumbnail = sThumbnail.replace('_thumb', '')
@@ -241,21 +202,13 @@ def showEntries(entryUrl = False, sGui = False):
 
         # Eigenschaften setzen und Listeneintrag hinzufügen
         oGuiElement.setThumbnail(sThumbnail)
-<<<<<<< HEAD
-        oGuiElement.setMediaType('tvshow' if isTvshow or res else 'movie')
-=======
         oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
->>>>>>> Lynx187/master
         oGuiElement.setDescription(sDesc)
         params.setParam('entryUrl', sUrl)
         params.setParam('sName', sName)
         params.setParam('sThumbnail', sThumbnail)
-<<<<<<< HEAD
-        oGui.addFolder(oGuiElement, params, True if isTvshow or res else False, total)
-=======
         params.setParam('isTvshow', isTvshow)
         oGui.addFolder(oGuiElement, params, isTvshow, total)
->>>>>>> Lynx187/master
 
     # Pattern um die Aktuelle Seite zu ermitteln
     pattern = '<ul[^>]*class="pagination[^>]*>.*'
@@ -271,11 +224,7 @@ def showEntries(entryUrl = False, sGui = False):
 
     # Liste abschließen und View setzen
     if not sGui:
-<<<<<<< HEAD
-        oGui.setView('tvshows' if isTvshow else 'movies')
-=======
         oGui.setView('tvshows' if URL_SHOWS in entryUrl else 'movies')
->>>>>>> Lynx187/master
         oGui.setEndOfDirectory()
 
 def showHosters():
@@ -292,10 +241,6 @@ def showHosters():
     pattern = '<a[^>]*episode="([^"]*)"[^>]*href="([^"]*)"[^>]*>'
     aResult = cParser().parse(sHtmlContent, pattern)
 
-<<<<<<< HEAD
-    # Falls Episoden gefunden worden => Episodenauswahl vorschalten
-    if aResult[0] and '-staffel-' in entryUrl:
-=======
     # Prüfen ob Einträge vorliegen
     if not aResult[0]:
         return
@@ -305,7 +250,6 @@ def showHosters():
 
     # Falls Episoden gefunden worden => Episodenauswahl vorschalten
     if isTvshowEntry == 'True':
->>>>>>> Lynx187/master
         showEpisodes(aResult[1], params)
     else:
         return getHosters(entryUrl, params.getValue('sName'))
@@ -317,13 +261,8 @@ def showEpisodes(aResult, params):
     # Variable für Ansicht vorbereiten
     sTVShowTitle = params.getValue('TVShowTitle')
     sName = params.getValue('sName')
-<<<<<<< HEAD
-    iSeason = int(re.compile('.*?staffel\s*(\d+)').findall(sName.lower())[0])
-    sThumbnail = params.getValue('sThumbnail')
-=======
     sThumbnail = params.getValue('sThumbnail')
     sSeason = params.getValue('sSeason')
->>>>>>> Lynx187/master
 
     # Listengröße ermitteln
     total = len (aResult)
@@ -334,11 +273,7 @@ def showEpisodes(aResult, params):
         oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'getHosters')
         oGuiElement.setMediaType('episode')
         oGuiElement.setTVShowTitle(sTVShowTitle)
-<<<<<<< HEAD
-        oGuiElement.setSeason(iSeason)
-=======
         oGuiElement.setSeason(sSeason)
->>>>>>> Lynx187/master
         oGuiElement.setEpisode(iEpisode)
         oGuiElement.setThumbnail(sThumbnail)
         params.setParam('sUrl', sUrl)
@@ -366,11 +301,7 @@ def getHosters(sUrl =False, sName = False):
     sHtmlContent = cRequestHandler(sUrl).request()
 
     # JSon mit den Links ermitteln
-<<<<<<< HEAD
-    pattern = 'var.*?(\[{"file":.*?\])'
-=======
     pattern = '(\[{".*?}\])'
->>>>>>> Lynx187/master
     aResult = cParser().parse(sHtmlContent, pattern)
 
     # Nichts gefunden? => Raus hier

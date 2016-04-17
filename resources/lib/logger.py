@@ -2,36 +2,30 @@
 import xbmc
 from resources.lib.handler.ParameterHandler import ParameterHandler
 
-LOG_LEVEL_INFO = 0;
-LOG_LEVEL_ERROR = 1;
-LOG_LEVEL_FATAL = 2;
+LOG_LEVEL_INFO = 0
+LOG_LEVEL_ERROR = 1
+LOG_LEVEL_FATAL = 2
 
 logLevel = LOG_LEVEL_INFO# (config.getSetting("debug")=="true")
 
 def info(sInfo):
     if (logLevel <= LOG_LEVEL_INFO):
-        __writeLog(sInfo, xbmc.LOGNOTICE);
+        __writeLog(sInfo, xbmc.LOGNOTICE)
 
 def error(sInfo):
     if (logLevel <= LOG_LEVEL_FATAL):
-         __writeLog(sInfo, xbmc.LOGERROR);
+         __writeLog(sInfo, xbmc.LOGERROR)
 
 def fatal(sInfo):
     if (logLevel <= LOG_LEVEL_FATAL):
-         __writeLog(sInfo, xbmc.LOGFATAL);
+         __writeLog(sInfo, xbmc.LOGFATAL)
 
 def __writeLog(sLog, cLogLevel):
     params = ParameterHandler()
-<<<<<<< HEAD
-    # Need a better was to do this
-    if isinstance(sLog, basestring):
-        sLog = sLog.encode("utf-8")
-=======
     try:
         sLog = str(sLog)
     except UnicodeEncodeError:
         sLog = sLog.encode('utf-8')
->>>>>>> Lynx187/master
     if params.exist('site'):
         site = params.getValue('site')
         print "\t[xStream] ->%s: %s" %(site,sLog)
