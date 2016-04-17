@@ -149,7 +149,11 @@ class cHosterGui:
         data = self._getInfoAndResolve(siteResult)
         if not data: return False
 
+<<<<<<< HEAD
         logger.info('download file link: ' + str(data['link']))
+=======
+        logger.info('download file link: ' + data['link'])
+>>>>>>> Lynx187/master
         if self.dialog:
             self.dialog.close()
         oDownload = cDownload()
@@ -182,22 +186,6 @@ class cHosterGui:
         import urlresolver
         #          
         ranking = []
-        '''
-        # multi hosters won't be handled correctly
-        urlresolver.lazy_plugin_scan() 
-        hosters = {}
-        for imp in urlresolver.UrlResolver.implementors():
-            prio = imp.priority
-            for name in imp.domains:
-                hosters[name.split(',')[0]] = prio
-        for hoster in hosterList:
-            name = hoster['name'].lower()
-            if name in hosters:
-                ranking.append([hosters[name],hoster])
-            elif not filter:
-                ranking.append([999,hoster])
-        '''
-
         #handles multihosters but is about 10 times slower
         for hoster in hosterList:
             # accept hoster which is marked as resolveable by sitePlugin
@@ -208,14 +196,25 @@ class cHosterGui:
             if source:
                 priority = False
                 for resolver in source._HostedMediaFile__resolvers:
+                    #prefer individual priority
                     if resolver.domains[0] != '*':
+<<<<<<< HEAD
                         if V(urlresolver.common.addon_version) > V("2.10.12"):
                             priority = resolver._get_priority()
                         else:
                             priority = resolver.priority
+=======
+                        if hasattr(resolver, 'priority'):
+                            priority = resolver.priority
+                        else:
+                            priority = resolver._get_priority()
+>>>>>>> Lynx187/master
                         break
                     if not priority:
-                        priority = resolver.priority                        
+                        if hasattr(resolver, 'priority'):
+                            priority = resolver.priority
+                        else:
+                            priority = resolver._get_priority()                        
                 if priority:
                     ranking.append([priority,hoster])
             elif not filter:
@@ -360,6 +359,7 @@ class cHosterGui:
 
         
     def streamAuto(self, playMode, siteName, function):
+        logger.info('auto stream initiated')
         self.dialog = xbmcgui.DialogProgress()
         self.dialog.create('xStream',"get stream/hoster")
         #load site as plugin and run the function

@@ -14,10 +14,8 @@ import sys
 def run():
     parseUrl()
 
-
 def changeWatched(params):
-    if not cConfig().getSetting('metahandler')=='true':
-        return
+    if not cConfig().getSetting('metahandler')=='true': return
     #videoType, name, imdbID, season=season, episode=episode, year=year, watched=watched
     try:
         from metahandler import metahandlers
@@ -59,23 +57,22 @@ def updateMeta(params):
     name = str(params.getValue('title'))
     year = params.getValue('year')
     logger.info("MediaType: "+mediaType)
-    if (mediaType == 'movie' or mediaType == 'tvshow') :
+    if mediaType == 'movie' or mediaType == 'tvshow':
         # show meta search input
         oGui = cGui()
         sSearchText = oGui.showKeyBoard(name)
-        if (sSearchText != False and sSearchText != ''):
-            if mediaType == 'movie':
-                try:
-                    foundInfo = meta.search_movies(sSearchText)
-                except:
-                    logger.info('error or nothing found')
-                    foundInfo = False
-            elif mediaType == 'tvshow':
-                foundInfo = metahandlers.TheTVDB().get_matching_shows(sSearchText, language="all")
-            else:
-                return
+        if not sSearchText: return
+        if mediaType == 'movie':
+            try:
+                foundInfo = meta.search_movies(sSearchText)
+            except:
+                logger.info('error or nothing found')
+                foundInfo = False
+        elif mediaType == 'tvshow':
+            foundInfo = metahandlers.TheTVDB().get_matching_shows(sSearchText, language="all", want_raw=True)
         else:
             return
+
         if not foundInfo:
             oGui.showInfo('xStream', 'Suchanfrage lieferte kein Ergebnis')
             return
@@ -84,10 +81,17 @@ def updateMeta(params):
         items = []
         for item in foundInfo:
             if mediaType == 'movie':
-                items.append(str(item['title'].encode('utf-8'))+' ('+str(item['year'])+')')                   
+                items.append(str(item['title'].encode('utf-8'))+' ('+str(item['year'])+')')
             elif mediaType == 'tvshow':
+<<<<<<< HEAD
                 if len(item)>2:items.append(str(item[1])+' (IMDb-ID: '+str(item[2])+')')
                 else: items.append(str(item[1]))
+=======
+                if 'FirstAired' in item:
+                    items.append(item['SeriesName']+' ('+str(item['FirstAired'])[:4]+') ' + item.get('language',''))
+                else:
+                    items.append(item['SeriesName']+' '+item.get('language',''))
+>>>>>>> Lynx187/master
             else:
                 return
         index = dialog.select('Film/Serie wählen', items)
@@ -102,7 +106,7 @@ def updateMeta(params):
         year = ''
     if mediaType == 'movie':
         meta.update_meta(mediaType, name, imdbID, new_imdb_id=str(item['imdb_id']), new_tmdb_id=str(item['tmdb_id']), year=year)
-    elif mediaType == 'tvshow': 
+    elif mediaType == 'tvshow':
         if params.exist('season'):
             season = params.getValue('season')
             meta.update_season(name, imdbID, season)
@@ -113,53 +117,61 @@ def updateMeta(params):
         elif season:
             meta.update_season(name, imdbID, season)
         else:
-            meta.update_meta(mediaType, name, imdbID, new_imdb_id=str(item[2]), new_tmdb_id=str(item[0]), year=year) 
+            meta.update_meta(mediaType, name, imdbID, new_imdb_id=str(item.get('IMDB_ID','')), new_tmdb_id=str(item['id']), year=year)
     xbmc.executebuiltin("XBMC.Container.Refresh")
     return
 
-
 def parseUrl():
-  params = ParameterHandler()
+    params = ParameterHandler()
 
-  # If no function is set, we set it to the default "load" function
-  if params.exist('function'):
-    sFunction = params.getValue('function')
-    if sFunction == 'spacer':
-        return True
-    elif sFunction == 'clearCache':
-        from resources.lib.handler.requestHandler import cRequestHandler
-        cRequestHandler('dummy').clearCache()
-        return
-    elif sFunction == 'changeWatched':
-        changeWatched(params)
-        return
-    elif sFunction == 'updateMeta':
-        updateMeta(params) 
-        return
-    elif sFunction == 'searchAlter':
-        searchAlter(params) 
-        return
-  else:
-    sFunction = 'load'
+    # If no function is set, we set it to the default "load" function
+    if params.exist('function'):
+        sFunction = params.getValue('function')
+        if sFunction == 'spacer':
+            return True
+        elif sFunction == 'clearCache':
+            from resources.lib.handler.requestHandler import cRequestHandler
+            cRequestHandler('dummy').clearCache()
+            return
+        elif sFunction == 'changeWatched':
+            changeWatched(params)
+            return
+        elif sFunction == 'updateMeta':
+            updateMeta(params)
+            return
+        elif sFunction == 'searchAlter':
+            searchAlter(params)
+            return
+    else:
+      sFunction = 'load'
 
-  # Test if we should run a function on a special site
-  if params.exist('site'):
+    # Test if we should run a function on a special site
+    if not params.exist('site'):
+        xbmc.executebuiltin('XBMC.RunPlugin(%s?function=clearCache)' % sys.argv[0])
+        # As a default if no site was specified, we run the default starting gui with all plugins
+        showMainMenu(sFunction)
+        return
     sSiteName = params.getValue('site')
     logger.info (params.getAllParameters())
-    
     if params.exist('playMode'):
         from resources.lib.gui.hoster import cHosterGui
         url = False
         playMode = params.getValue('playMode')
         isHoster = params.getValue('isHoster')
         url = params.getValue('url')
+<<<<<<< HEAD
         manual = params.exist('manual')  
            
         if cConfig().getSetting('autoPlay')=='true' and playMode != 'jd' and playMode != 'pyload' and not manual:
+=======
+        manual = params.exist('manual')
+        if cConfig().getSetting('hosterSelect')=='auto' and playMode != 'jd' and playMode != 'pyload' and not manual:
+>>>>>>> Lynx187/master
             cHosterGui().streamAuto(playMode, sSiteName, sFunction)
-        else:        
+        else:
             cHosterGui().stream(playMode, sSiteName, sFunction, url)
         return
+<<<<<<< HEAD
         
     else:    
         logger.info("Call function '%s' from '%s'" % (sFunction, sSiteName))
@@ -228,14 +240,89 @@ def showMainMenu(sFunction):
     else:
       # Create a gui element for every plugin found
       for aPlugin in sorted(aPlugins, key=lambda k: k['id']):
+=======
+    logger.info("Call function '%s' from '%s'" % (sFunction, sSiteName))
+    # If the hoster gui is called, run the function on it and return
+    if sSiteName == 'cHosterGui':
+        showHosterGui(sFunction)
+    # If global search is called
+    elif sSiteName == 'globalSearch':
+        searchGlobal()
+    elif sSiteName == 'favGui':
+        showFavGui(sFunction)
+    # If addon settings are called
+    elif sSiteName == 'xStream':
+        oGui = cGui()
+        oGui.openSettings()
+        oGui.updateDirectory()
+    # If the urlresolver settings are called
+    elif sSiteName == 'urlresolver':
+        import urlresolver
+        urlresolver.display_settings()
+    # If metahandler settings are called
+    elif sSiteName == 'metahandler':
+        import metahandler
+        metahandler.display_settings()
+    else:
+        # Else load any other site as plugin and run the function
+        plugin = __import__(sSiteName, globals(), locals())
+        function = getattr(plugin, sFunction)
+        function()
+
+def showMainMenu(sFunction):
+    oGui = cGui()
+    oPluginHandler = cPluginHandler()
+    aPlugins = oPluginHandler.getAvailablePlugins()
+    if not aPlugins:
+        logger.info("No Plugins found")
+        # Open the settings dialog to choose a plugin that could be enabled
+        oGui.openSettings()
+        oGui.updateDirectory()
+    else:
+        # Create a gui element for every plugin found
+        for aPlugin in aPlugins:
+            oGuiElement = cGuiElement()
+            oGuiElement.setTitle(aPlugin['name'])
+            oGuiElement.setSiteName(aPlugin['id'])
+            oGuiElement.setFunction(sFunction)
+            if 'icon' in aPlugin and aPlugin['icon']:
+                oGuiElement.setThumbnail(aPlugin['icon'])
+            oGui.addFolder(oGuiElement)
+
+        # Create a gui element for global search
         oGuiElement = cGuiElement()
-        oGuiElement.setTitle(aPlugin['name'])
-        oGuiElement.setSiteName(aPlugin['id'])
-        oGuiElement.setFunction(sFunction)
-        if aPlugin['icon'] != '':
-            oGuiElement.setThumbnail(aPlugin['icon'])
+        oGuiElement.setTitle("Globale Suche")
+        oGuiElement.setSiteName("globalSearch")
+        oGuiElement.setFunction("globalSearch")
+        #oGuiElement.setThumbnail("DefaultAddonService.png")
         oGui.addFolder(oGuiElement)
 
+        # Create a gui element for favorites
+        #oGuiElement = cGuiElement()
+        #oGuiElement.setTitle("Favorites")
+        #oGuiElement.setSiteName("FavGui")
+        #oGuiElement.setFunction("showFavs")
+        #oGuiElement.setThumbnail("DefaultAddonService.png")
+        #oGui.addFolder(oGuiElement)
+
+        # Create a gui element for addon settings
+        oGuiElement = cGuiElement()
+        oGuiElement.setTitle("xStream Settings")
+        oGuiElement.setSiteName("xStream")
+        oGuiElement.setFunction("display_settings")
+        oGuiElement.setThumbnail("DefaultAddonService.png")
+        oGui.addFolder(oGuiElement)
+
+        # Create a gui element for urlresolver settings
+>>>>>>> Lynx187/master
+        oGuiElement = cGuiElement()
+        oGuiElement.setTitle("Resolver Settings")
+        oGuiElement.setSiteName("urlresolver")
+        oGuiElement.setFunction("display_settings")
+        oGuiElement.setThumbnail("DefaultAddonService.png")
+        oGui.addFolder(oGuiElement)
+
+<<<<<<< HEAD
       # Create a gui element for Settingsfolder
       oGuiElement = cGuiElement()
       oGuiElement.setTitle("Settings")
@@ -252,6 +339,16 @@ def showMainMenu(sFunction):
       # oGuiElement.setThumbnail("DefaultAddonService.png")
       # oGui.addFolder(oGuiElement)
 
+=======
+        # Create a gui element for metahandler settings
+        if cConfig().getSetting('metahandler')=='true':
+            oGuiElement = cGuiElement()
+            oGuiElement.setTitle("Metahandler Settings")
+            oGuiElement.setSiteName("metahandler")
+            oGuiElement.setFunction("display_settings")
+            oGuiElement.setThumbnail("DefaultAddonService.png")
+            oGui.addFolder(oGuiElement)
+>>>>>>> Lynx187/master
     oGui.setEndOfDirectory()
 
 def showHosterGui(sFunction):
@@ -260,7 +357,7 @@ def showHosterGui(sFunction):
     function = getattr(oHosterGui, sFunction)
     function()
     return True
-  
+
 #def showFavGui(functionName):
     #from resources.lib.gui.favorites import FavGui
     #oFavGui = FavGui()
@@ -303,26 +400,24 @@ def searchGlobal():
     import threading
     oGui = cGui()
     sSearchText = oGui.showKeyBoard()
-    if (sSearchText != False and sSearchText != ''):
-        aPlugins = []
-        aPlugins = cPluginHandler().getAvailablePlugins()
-        dialog = xbmcgui.DialogProgress()
-        dialog.create('xStream',"Searching...")
-        numPlugins = len(aPlugins)
-        count = 0
-        threads = []
-        for pluginEntry in aPlugins:
-            dialog.update(count*100/numPlugins,'Searching: '+str(pluginEntry['name'])+'...')
-            count += 1
-            logger.info('Searching for %s at %s' % (sSearchText, pluginEntry['id']))
-            t = threading.Thread(target=_pluginSearch, args=(pluginEntry,sSearchText,oGui))
-            threads += [t]
-            t.start()
-        for t in threads: 
-            t.join()
-        dialog.close()
-        oGui.setView()
-        oGui.setEndOfDirectory()
+    if not sSearchText: return True
+    aPlugins = []
+    aPlugins = cPluginHandler().getAvailablePlugins()
+    dialog = xbmcgui.DialogProgress()
+    dialog.create('xStream',"Searching...")
+    numPlugins = len(aPlugins)
+    threads = []
+    for count, pluginEntry in enumerate(aPlugins):
+        dialog.update((count+1)*100/numPlugins,'Searching: '+str(pluginEntry['name'])+'...')
+        logger.info('Searching for %s at %s' % (sSearchText, pluginEntry['id']))
+        t = threading.Thread(target=_pluginSearch, args=(pluginEntry,sSearchText,oGui))
+        threads += [t]
+        t.start()
+    for t in threads:
+        t.join()
+    dialog.close()
+    oGui.setView()
+    oGui.setEndOfDirectory()
     return True
 
 def searchAlter(params):
@@ -336,16 +431,14 @@ def searchAlter(params):
     dialog = xbmcgui.DialogProgress()
     dialog.create('xStream',"Searching...")
     numPlugins = len(aPlugins)
-    count = 0
     threads = []
-    for pluginEntry in aPlugins:
-        dialog.update(count*100/numPlugins,'Searching: '+str(pluginEntry['name'])+'...')
-        count += 1
+    for count, pluginEntry in enumerate(aPlugins):
+        dialog.update((count+1)*100/numPlugins,'Searching: '+str(pluginEntry['name'])+'...')
         logger.info('Searching for ' + searchTitle + pluginEntry['id'].encode('utf-8'))
         t = threading.Thread(target=_pluginSearch, args=(pluginEntry,searchTitle, oGui))
         threads += [t]
         t.start()
-    for t in threads: 
+    for t in threads:
         t.join()
     #check results, put this to the threaded part, too
     dialog.close()
@@ -364,7 +457,6 @@ def searchAlter(params):
     oGui.setEndOfDirectory()
     #xbmc.executebuiltin('Container.Update')
     return True
-
 
 def _pluginSearch(pluginEntry, sSearchText, oGui):
     try:

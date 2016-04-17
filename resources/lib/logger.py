@@ -22,9 +22,16 @@ def fatal(sInfo):
 
 def __writeLog(sLog, cLogLevel):
     params = ParameterHandler()
+<<<<<<< HEAD
     # Need a better was to do this
     if isinstance(sLog, basestring):
         sLog = sLog.encode("utf-8")
+=======
+    try:
+        sLog = str(sLog)
+    except UnicodeEncodeError:
+        sLog = sLog.encode('utf-8')
+>>>>>>> Lynx187/master
     if params.exist('site'):
         site = params.getValue('site')
         print "\t[xStream] ->%s: %s" %(site,sLog)
