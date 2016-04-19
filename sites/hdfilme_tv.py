@@ -3,7 +3,6 @@ from resources.lib.gui.gui import cGui
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.parser import cParser
-from resources.lib.config import cConfig
 from resources.lib import logger
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.util import cUtil
@@ -126,7 +125,7 @@ def showEntries(entryUrl = False, sGui = False):
     sHtmlContent = oRequest.request()
     
     # Filter out the main section
-    pattern = '<ul class="products row">.*?</ul>'
+    pattern = '<ul class="products row">(.*?)</ul>'
     aResult = cParser().parse(sHtmlContent, pattern)
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
