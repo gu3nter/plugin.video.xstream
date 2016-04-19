@@ -27,14 +27,14 @@ class cDownload:
 
     def download(self, url, sTitle, showDialog = True):
         sTitle = u'%s' % sTitle.decode('utf-8')
-        
+
         self.__processIsCanceled = False
         # extract header
         try: header = dict([item.split('=') for item in (url.split('|')[1]).split('&')])
         except: header = {}
         logger.info('Header for download: %s' % (header))
 
-        url = url.split('|')[0]    
+        url = url.split('|')[0]
         sTitle = self.__createTitle(url, sTitle)
         self.__sTitle = self.__createDownloadFilename(sTitle)
 
@@ -86,26 +86,26 @@ class cDownload:
         else:
             f = open(r'%s' % fpath, "wb")
         iCount = 0
-        self._startTime = time.time()      
+        self._startTime = time.time()
         while 1:
             iCount = iCount +1
             data = oUrlHandler.read(chunk)
-            if not data or self.__processIsCanceled == True:                
+            if not data or self.__processIsCanceled == True:
                 break
             f.write(data)
             self.__stateCallBackFunction(iCount, chunk, iTotalSize)
-            
 
-    def __createTitle(self, sUrl, sTitle):        
-        aTitle = sTitle.rsplit('.')        
+
+    def __createTitle(self, sUrl, sTitle):
+        aTitle = sTitle.rsplit('.')
         if (len(aTitle) > 1):
             return sTitle
-        
-        aUrl = sUrl.rsplit('.')        
+
+        aUrl = sUrl.rsplit('.')
         if (len(aUrl) > 1):
             sSuffix = aUrl[-1]
             sTitle = sTitle + '.' + sSuffix
-            
+
         return sTitle
 
     def __stateCallBackFunction(self, iCount, iBlocksize, iTotalSize):
@@ -121,13 +121,11 @@ class cDownload:
         if (self.__oDialog.iscanceled()):
             self.__processIsCanceled = True
             self.__oDialog.close()
-            
-    
+
+
     def __formatFileSize(self, iBytes):
         iBytes = int(iBytes)
         if (iBytes == 0):
             return '%.*f %s' % (2, 0, 'MB')
-        
+
         return '%.*f %s' % (2, iBytes/(1024*1024.0) , 'MB')
-
-
