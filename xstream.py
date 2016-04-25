@@ -137,7 +137,7 @@ def parseUrl():
         elif sFunction == 'searchAlter':
             searchAlter(params)
             return
-        elif sFunction == 'updateXstream' and cConfig().getSetting('UpdateSetting') != 'Off':
+        elif sFunction == 'updateXstream':
             updateManager.checkforupdates()
             return
     else:
@@ -146,7 +146,8 @@ def parseUrl():
     # Test if we should run a function on a special site
     if not params.exist('site'):
         xbmc.executebuiltin('XBMC.RunPlugin(%s?function=clearCache)' % sys.argv[0])
-        xbmc.executebuiltin('XBMC.RunPlugin(%s?function=updateXstream)' % sys.argv[0])
+        if cConfig().getSetting('UpdateSetting') != 'Off':
+            xbmc.executebuiltin('XBMC.RunPlugin(%s?function=updateXstream)' % sys.argv[0])
         # As a default if no site was specified, we run the default starting gui with all plugins
         showMainMenu(sFunction)
         return
