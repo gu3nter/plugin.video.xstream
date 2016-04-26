@@ -80,6 +80,20 @@ Nein, das Addon ermöglicht nur die Nutzung der Streaming-Seiten. Das bloße Str
 
 Das Plugin kann direkt herunterladen werden (wobei die Update-Funktionalität nicht gegeben ist), oder über die xStream Repository installiert werden (empfohlen). Diese ist momentan hier verfügbar:
 
+***WICHTIG:*** Beim gesamten Daten Download von Github gilt es folgendes zu Beachten: 
+
+Um eine Korrekte Installation zu Gewährleisten, ist es immer notwendig, den Anhang _Master, Beta, Nightly_ aus den  .zip Dateien und dem Unterordner zu entfernen
+
+Geht wie folgt: 
+	
+- zum Beispiel, die Datei in "plugin.video.xstream.zip" umbenennen (quasi das "-master", -"beta" oder -"nightly" entfernen)
+
+-  Datei öffnen (nicht entpacken) mit 7-Zip, WinRAR, WinZIP (oder einem anderen Packer)
+	
+- dort ist ein Ordner zu sehen der z.B. "plugin.video.xstream-master" heißt => auch hier das "-master" entfernen
+
+Die Zip dann installieren.
+
 - [Master-Branch bei GitHub](https://github.com/Lynx187/xStreamRepo/archive/master.zip)
 
 Alternativer Download der Repository:
@@ -233,8 +247,41 @@ Angaben in (...) = Aktueller "Ort"
 CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:590)
 File "/Users/Shared/jenkins/workspace/TVOS/tools/depends/xbmc line 579, in __init__
 
-	- Status: in den xStream-Settings die Suche nach Updates ausschalten, dann läuft es wieder
+	- Lösung: in den xStream-Settings die Suche nach Updates ausschalten, dann läuft es wieder
 Updates von Git muss man dann manuell einspielen oder auf Updates über das offizielle xStreamRepo warten
+
+	- Thread: [Link](http://xstream-addon.square7.ch/showthread.php?tid=618)
+
+- **Fehler 1 beim Öffnen von BurningSeries (Bs)**
+	- [SSL:CERTIFICATE_VERIFY_FAILED] certificate failed (sl.c:590)
+
+		und danach kommt eine Fehlermeldung:
+
+		ValueError MO JSON object could be decoded File 
+"/Users/Shared/xbmc-depends/appletvos9.1_arm64-target/lib 
+line 366, in decode
+	- Lösung: Folgende Datei downloaden:
+
+		https://github.com/Lynx187/plugin.video....master.zip
+
+	- die Datei in "plugin.video.xstream.zip" umbenennen (quasi das "-master" entfernen)
+	- öffne (nicht entpacken) die Datei mit 7-Zip (oder einem anderen Packer)
+	
+	- dort solltest du einen orderner sehen der "plugin.video.xstream-master" heißt => auch hier das "-master" entfernen
+
+
+Die Zip dann installieren. Damit sollte das SSL-Problem gefixt sein. 
+
+ - Thread: [Link](http://xstream-addon.square7.ch/showthread.php?tid=627)
+ 
+ - **Fehler 2 beim Öffnen von BurningSeries (Bs):** 
+ 
+ 	- ImportError: No Module named t0mm0. Common.net /script. Module. Urlresolver /lib/urlresolver /plugins /ecostrean. Pline 19,in < module> 
+
+	- Lösung: Es fehlt eine Abhängigkeit von xStream, welche eigentlich bei der Installation über das Repo mit installiert werden sollte.
+Deinstalliert xStream nochmal und installier es über das xStream Repo neu. 
+
+	- Thread: [Link](http://xstream-addon.square7.ch/showthread.php?tid=627&page=2)
 
 
 ## 4. Fehlerbericht über Log-Datei
