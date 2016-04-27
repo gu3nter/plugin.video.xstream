@@ -318,6 +318,7 @@ def getHosters(sUrl =False, sName = False):
         hoster = dict()
         hoster['link'] = entry['file']
         hoster['name'] = sLabel
+        hoster['quality'] = entry['label'].encode('utf-8')
         hoster['resolveable'] = True
         hosters.append(hoster)
 

@@ -207,8 +207,10 @@ class cHosterGui:
                     ranking.append([priority, hoster])
             elif not filter:
                 ranking.append([999, hoster])
-
-        ranking.sort()
+        if any('quality' in hoster[1] for hoster in ranking):
+            ranking = sorted(ranking, key=lambda hoster: hoster[1]['quality'], reverse=True)
+        else:
+            ranking.sort()
         hosterQueue = []
         for i, hoster in ranking:
             hosterQueue.append(hoster)
