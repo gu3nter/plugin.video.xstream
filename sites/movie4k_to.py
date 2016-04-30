@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from resources.lib.util import cUtil
 from resources.lib.parser import cParser
 from resources.lib.handler.requestHandler import cRequestHandler
@@ -18,7 +18,7 @@ SITE_SETTINGS = '<setting default="movie4k.to" enable="!eq(-1,false)" id="movie4
 oConfig = cConfig()
 DOMAIN = oConfig.getSetting('movie4k_to-domain')
 ####
-URL_MAIN = 'http://' + DOMAIN
+URL_MAIN = 'http://www.' + DOMAIN
 URL_MOVIES = URL_MAIN + '/index.php'
 URL_MOVIES_ALL = URL_MAIN + '/movies-all'
 URL_MOVIES_GENRE = URL_MAIN + '/genres-movies.html'
@@ -324,7 +324,7 @@ def parseMovieSimpleList():
         sUrl = params.getValue('sUrl')
         logger.info(sUrl)
         if (sUrl.find('tvshows-season-') != -1):
-            sPattern = '<TR>\s*<TD.*?id="tdmovies".*?<a href="([^"]+)">(.*?)\s*</a>.*?<img border=0 src="(http://[^/]+){0,1}/img/([^"]+)".*?</TR>'
+            sPattern = '<TR>\s*<TD.*?id="tdmovies".*?<a href="([^"]+)">(.*?)\s*</a>.*?<img border=0 src="http://[^/]+/img/([^"]+)".*?</TR>'
             if params.exist('sLanguageToken'):
                 sLanguageToken = params.getValue('sLanguageToken')
                 oRequest = cRequestHandler(sUrl)
@@ -335,7 +335,7 @@ def parseMovieSimpleList():
                         sUrl = str(aEntry[0]).strip()
                         if not (sUrl.startswith('http')):
                             sUrl = URL_MAIN +'/'+ sUrl
-                        if aEntry[3] == sLanguageToken:
+                        if aEntry[2] == sLanguageToken:
                             break
                     oRequest = cRequestHandler(sUrl)
                     sHtmlContent = oRequest.request()
@@ -345,7 +345,7 @@ def parseMovieSimpleList():
                             sUrl = str(aEntry[0]).strip()
                             if not (sUrl.startswith('http')):
                                 sUrl = URL_MAIN +'/'+ sUrl
-                            if aEntry[3] == sLanguageToken:
+                            if aEntry[2] == sLanguageToken:
                                 break
                                 
             else:

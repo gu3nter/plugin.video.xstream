@@ -3,10 +3,8 @@ from resources.lib.gui.gui import cGui
 from resources.lib.gui.guiElement import cGuiElement
 from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.parser import cParser
-from resources.lib.config import cConfig
 from resources.lib import logger
 from resources.lib.handler.ParameterHandler import ParameterHandler
-from resources.lib.handler.pluginHandler import cPluginHandler
 from resources.lib.util import cUtil
 import re, json
 
@@ -17,16 +15,17 @@ SITE_ICON = 'hdfilme.png'
 
 # Basis-URL's
 URL_MAIN = 'http://hdfilme.tv/'
-URL_LOGIN = URL_MAIN + 'login.html?'
 URL_MOVIES = URL_MAIN + 'movie-movies?'
 URL_SHOWS = URL_MAIN + 'movie-series?'
-URL_SEARCH = URL_MAIN + 'movie/search?key='
+URL_SEARCH = URL_MAIN + 'movie/search?key="%s"'
 
 # Parameter für die Sortierung
 URL_PARMS_ORDER_ID = 'order_f=id'
 URL_PARMS_ORDER_ID_ASC = URL_PARMS_ORDER_ID +'&order_d=asc'
 URL_PARMS_ORDER_NAME = 'order_f=name'
 URL_PARMS_ORDER_NAME_ASC = URL_PARMS_ORDER_NAME +'&order_d=asc'
+
+QUALITY_ENUM = {'240':0, '360':1, '480':2, '720':3, '1080':4}
 
 def load():
     # Logger-Eintrag
@@ -39,48 +38,35 @@ def load():
     params = ParameterHandler()
 
     # Einträge anlegen
-    oGui.addFolder(cGuiElement('Filme', SITE_IDENTIFIER, 'showMovieMenu'))
-    oGui.addFolder(cGuiElement('Serien', SITE_IDENTIFIER, 'showSeriesMenu'))
+    params.setParam('sUrl', URL_MOVIES)
+    oGui.addFolder(cGuiElement('Filme', SITE_IDENTIFIER, 'showContentMenu'), params)
+    params.setParam('sUrl', URL_SHOWS)
+    oGui.addFolder(cGuiElement('Serien', SITE_IDENTIFIER, 'showContentMenu'), params)
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
 
     # Liste abschließen
     oGui.setEndOfDirectory()
 
-def showSeriesMenu():
-   # GUI-Element erzeugen
-    oGui = cGui()
-
-    # ParameterHandler erzeugen
-    params = ParameterHandler()
-
-    # Einträge anlegen
-    params.setParam('sUrl', URL_SHOWS + URL_PARMS_ORDER_ID)
-    oGui.addFolder(cGuiElement('Neu hinzugefügt', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_SHOWS + URL_PARMS_ORDER_NAME_ASC)
-    oGui.addFolder(cGuiElement('Alphabetisch', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_SHOWS + URL_PARMS_ORDER_NAME_ASC)
-    oGui.addFolder(cGuiElement('Genre',SITE_IDENTIFIER,'showGenreList'), params)   
-
-    # Liste abschließen
-    oGui.setEndOfDirectory() 
-
-def showMovieMenu():
+def showContentMenu():
     # GUI-Element erzeugen
     oGui = cGui()
 
     # ParameterHandler erzeugen
     params = ParameterHandler()
 
+    # Basis-URL ermitteln (Filme oder Serien)
+    baseURL = params.getValue('sUrl')
+
     # Einträge anlegen
-    params.setParam('sUrl', URL_MOVIES + URL_PARMS_ORDER_ID)
+    params.setParam('sUrl', baseURL + URL_PARMS_ORDER_ID)
     oGui.addFolder(cGuiElement('Neu hinzugefügt', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_MOVIES + URL_PARMS_ORDER_NAME_ASC)
+    params.setParam('sUrl', baseURL + URL_PARMS_ORDER_NAME_ASC)
     oGui.addFolder(cGuiElement('Alphabetisch', SITE_IDENTIFIER, 'showEntries'), params)
-    params.setParam('sUrl', URL_MOVIES + URL_PARMS_ORDER_NAME_ASC)
+    params.setParam('sUrl', baseURL + URL_PARMS_ORDER_NAME_ASC)
     oGui.addFolder(cGuiElement('Genre',SITE_IDENTIFIER,'showGenreList'), params)   
-    
+
     # Liste abschließen
-    oGui.setEndOfDirectory()     
+    oGui.setEndOfDirectory() 
 
 def showGenreList():
     # GUI-Element erzeugen
@@ -93,8 +79,7 @@ def showGenreList():
     entryUrl = params.getValue('sUrl')
 
     # Movie-Seite laden
-    oRequestHandler = cRequestHandler(entryUrl)
-    sHtmlContent = oRequestHandler.request()
+    sHtmlContent = cRequestHandler(entryUrl).request()
 
     # Select für Generes Laden
     pattern = '<select[^>]*name="cat"[^>]*>(.*?)</select[>].*?'
@@ -141,19 +126,13 @@ def showEntries(entryUrl = False, sGui = False):
     # Daten ermitteln
     sHtmlContent = oRequest.request()
     
-    # Prüfen ob es sich um einen Film oder um eine Serie handelt
-    isTvshow = True if URL_SHOWS in entryUrl else False
-
-    # View ensprechent der URL anpassen
-    oGui.setView('tvshows' if isTvshow else 'movies')
-
     # Filter out the main section
-    pattern = '<ul class="products row">.*?</ul>'
+    pattern = '<ul class="products row">(.*?)</ul>'
     aResult = cParser().parse(sHtmlContent, pattern)
 
     # Funktion verlassen falls keine Daten ermittelt werden konnten
     if not aResult[0] or not aResult[1][0]: 
-        oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
         return
 
     # Content festlegen der geparst werden soll
@@ -163,8 +142,11 @@ def showEntries(entryUrl = False, sGui = False):
     pattern = '<div[^>]*class="box-product clearfix"[^>]*>\s*?'
     pattern += '<a[^>]*href="([^"]*)"[^>]*>.*?'
 
-    # Rhumbnail ermitteln
+    # Thumbnail ermitteln
     pattern += '<img[^>]*src="([^"]*)"[^>]*>.*?'
+
+    # Prüfung auf Episoden-Einträge
+    pattern += '(?:<div[^>]*class="episode"[^>]*>([^"]*)</div>.*?)?'
 
     # Name ermitteln
     pattern += '<div[^>]*class="popover-title"[^>]*>.*?'
@@ -177,20 +159,39 @@ def showEntries(entryUrl = False, sGui = False):
     aResult = cParser().parse(sMainContent, pattern)
 
     # Kein Einträge gefunden? => Raus hier
-    if not aResult[0]: return
+    if not aResult[0]: 
+        if not sGui: oGui.showInfo('xStream','Es wurde kein Eintrag gefunden')
+        return
+
+    # Listengröße ermitteln
+    total = len (aResult[1])
 
     # Alle Ergebnisse durchlaufen
-    for sUrl, sThumbnail, sName, sDesc in aResult[1]:
+    for sUrl, sThumbnail, sEpisodeNrs, sName, sDesc in aResult[1]:
         # Bei Filmen das Jahr vom Title trennen
         aYear = re.compile("(.*?)\((\d*)\)").findall(sName)
         iYear = False
         for name, year in aYear:
             sName = name
             iYear = year
-            break;
+            break
+
+        # prüfen ob der Eintrag ein Serie/Staffel ist
+        isTvshow = True if sEpisodeNrs else False
 
         # Listen-Eintrag erzeugen
         oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showHosters')
+
+        # Bei Serien Title anpassen
+        res = re.search('(.*?)\s(?:staf+el|s)\s*(\d+)', sName,re.I)
+        if res:
+            oGuiElement.setTVShowTitle(res.group(1))
+            oGuiElement.setTitle('%s - Staffel %s' % (res.group(1),int(res.group(2))))
+            params.setParam('sSeason', int(res.group(2)))
+        elif not res and isTvshow:
+            oGuiElement.setTVShowTitle(sName)
+            oGuiElement.setTitle('%s - Staffel %s' % (sName,"1"))
+            params.setParam('sSeason', "1")
 
         # Thumbnail und Beschreibung für Anzeige anpassen
         sThumbnail = sThumbnail.replace('_thumb', '')
@@ -207,7 +208,8 @@ def showEntries(entryUrl = False, sGui = False):
         params.setParam('entryUrl', sUrl)
         params.setParam('sName', sName)
         params.setParam('sThumbnail', sThumbnail)
-        oGui.addFolder(oGuiElement, params)
+        params.setParam('isTvshow', isTvshow)
+        oGui.addFolder(oGuiElement, params, isTvshow, total)
 
     # Pattern um die Aktuelle Seite zu ermitteln
     pattern = '<ul[^>]*class="pagination[^>]*>.*'
@@ -221,8 +223,10 @@ def showEntries(entryUrl = False, sGui = False):
         params.setParam('page', int(aResult[1][0]))
         oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
 
-    # Liste abschließen
-    oGui.setEndOfDirectory()
+    # Liste abschließen und View setzen
+    if not sGui:
+        oGui.setView('tvshows' if URL_SHOWS in entryUrl else 'movies')
+        oGui.setEndOfDirectory()
 
 def showHosters():
     # ParameterHandler erzeugen
@@ -232,81 +236,129 @@ def showHosters():
     entryUrl = params.getValue('entryUrl').replace("-info","-stream")
 
     # Seite abrufen
-    sHtmlContent = __getHtmlContent(entryUrl)
+    sHtmlContent = cRequestHandler(entryUrl).request()
 
     # Prüfen ob Episoden gefunden werden
     pattern = '<a[^>]*episode="([^"]*)"[^>]*href="([^"]*)"[^>]*>'
     aResult = cParser().parse(sHtmlContent, pattern)
 
+    # Prüfen ob Einträge vorliegen
+    if not aResult[0]:
+        return
+
+    # Ermitteln ob es sich um eine Serie handelt
+    isTvshowEntry = params.getValue('isTvshow')
+
     # Falls Episoden gefunden worden => Episodenauswahl vorschalten
-    if aResult[0] and len(aResult[1]) > 1:
+    if isTvshowEntry == 'True':
         showEpisodes(aResult[1], params)
     else:
-        showLinks(entryUrl, params.getValue('sName'))
+        return getHosters(entryUrl)
 
 def showEpisodes(aResult, params):
     # GUI-Element erzeugen wenn nötig
     oGui = cGui()
 
-    # Ansicht auf "Episoden" setze
-    oGui.setView('episodes')
-
     # Variable für Ansicht vorbereiten
+    sTVShowTitle = params.getValue('TVShowTitle')
     sName = params.getValue('sName')
-    iSeason = int(re.compile('.*?staffel\s*(\d+)').findall(sName.lower())[0])
     sThumbnail = params.getValue('sThumbnail')
-    
+    sSeason = params.getValue('sSeason')
+
+    # Listengröße ermitteln
+    total = len (aResult)
+
     # Alle Folgen durchlaufen und Einträge erzeugen
     for iEpisode, sUrl in aResult:
         sName = 'Folge ' + str(iEpisode)
-        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showLinks')
+        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'getHosters')
         oGuiElement.setMediaType('episode')
-        oGuiElement.setSeason(iSeason)
+        oGuiElement.setTVShowTitle(sTVShowTitle)
+        oGuiElement.setSeason(sSeason)
         oGuiElement.setEpisode(iEpisode)
         oGuiElement.setThumbnail(sThumbnail)
         params.setParam('sUrl', sUrl)
         params.setParam('sName', sName)
-        oGui.addFolder(oGuiElement, params)
+        oGui.addFolder(oGuiElement, params, False, total)
+
+    # Ansicht auf "Episoden" setze
+    oGui.setView('episodes')
 
     # Liste abschließen
     oGui.setEndOfDirectory()
 
-def showLinks(sUrl =False, sName = False):
-    # GUI-Element erzeugen wenn nötig
-    oGui = cGui()
-
+def getHosters(sUrl = False):
     #ParameterHandler erzeugen
     params = ParameterHandler()
 
     # URL und Name ermitteln falls nicht übergeben
     sUrl = sUrl if sUrl else params.getValue('sUrl')
-    sName = sName if sName else params.getValue('sName')
 
     # Seite abrufen
-    sHtmlContent = __getHtmlContent(sUrl)
+    sHtmlContent = cRequestHandler(sUrl).request()
+
+    # Servername und Episoden pro Server ermitteln
+    pattern = "[^>]*>([a-zA-Z0-9_ ]+)</div>\s+<ul[^>]*class=['\"]list-inline list-film['\"][^>]*>(.*?)</ul>"
+    parser = cParser()
+    aResult = parser.parse(sHtmlContent, pattern)
+
+    # Hosterliste initialisieren
+    hosters = []
+
+    # Prüfen ob Server ermittelt werden konnte
+    if aResult[0]:
+        # Prüfen ob eine direkte-Episode gewünscht ist
+        aMatches = re.compile("episode=(\d+)&").findall(sUrl)
+
+        # gewünsche Episode ermitteln wenn möglich
+        sEpisode = "1" if not aMatches else aMatches[0]
+
+        # Server-Block durchlaufen
+        for sServername, sInnerHtml in aResult[1]:
+            # Nur Links für die gewünschte Episode ermitteln
+            pattern = "<a[^>]*href=['\"]([^'\"]*)['\"][^>]*>\s+%s\s+</a>" % sEpisode
+            aResultLinks = parser.parse(sInnerHtml, pattern)
+
+            # Wurde ein Link gefunden? => Einträge zur Gesamtliste hinzufügen
+            if aResultLinks[0]:
+                hosters.extend(_getHostFromUrl(aResultLinks[1][0], sServername))
+
+    # Sind Hoster vorhanden? => Nachfolgefunktion ergänzen
+    if hosters:
+        hosters.append('play')
+
+    return hosters
+
+def _getHostFromUrl(sUrl, sServername):
+    # Seite abrufen
+    sHtmlContent = cRequestHandler(sUrl).request()
 
     # JSon mit den Links ermitteln
-    pattern = 'var hdfilme_vip = .*?(\[.*?\])'            
+    pattern = '(\[{".*?}\])'
     aResult = cParser().parse(sHtmlContent, pattern)
 
-    # Allgemeiner Fallback falls die erste Variante nicht funktiert
-    if ((not 'http' in str(aResult)) or (not 'https' in str(aResult))):
-        pattern = 'var.*?(\[{"file":.*?\])'      
-        aResult = cParser().parse(sHtmlContent, pattern)
-
     # Nichts gefunden? => Raus hier
-    if not aResult[0] or not aResult[1][0]: return 
-        
-    # Alle Links durchlaufen und Einträge erzeugen
-    for aEntry in json.loads(aResult[1][0]):
-        if 'file' not in aEntry or 'label' not in aEntry: continue
-        sLabel = sName + ' - ' + aEntry['label'].encode('utf-8')
-        oGuiElement = cGuiElement(sLabel, SITE_IDENTIFIER, 'play')
-        params.setParam('url', aEntry['file'])
-        oGui.addFolder(oGuiElement, params, False)
+    if not aResult[0] or not aResult[1][0]: 
+        logger.info("hoster pattern did not match")
+        return False
 
-    # Liste abschließen
-    oGui.setEndOfDirectory()
+    # hosterliste initialisieren
+    hosters = []
+
+    # Alle Einträge durchlaufen und Hostereintrag erstellen
+    for entry in json.loads(aResult[1][0]):
+        if 'file' not in entry or 'label' not in entry: continue
+        sLabel = sServername + ' - ' + entry['label'].encode('utf-8')
+        hoster = dict()
+        hoster['link'] = entry['file']
+        if entry['label'].encode('utf-8')[:-1] in QUALITY_ENUM:
+ +            hoster['quality'] = QUALITY_ENUM[entry['label'].encode('utf-8')[:-1]]
+        hoster['name'] = sLabel
+        hoster['resolveable'] = True
+        hosters.append(hoster)
+
+    # Hoster zurückgeben
+    return hosters
 
 def play(sUrl = False):
     #ParameterHandler erzeugen
@@ -337,7 +389,10 @@ def showSearch():
     if not sSearchText: return
 
     # Suche durchführen
-    _search(oGui, sSearchText)
+    _search(False, sSearchText)
+
+    #Liste abschließen
+    oGui.setEndOfDirectory()
 
 # Such-Funktion (z.b auch für Globale-Suche)
 def _search(oGui, sSearchText):
@@ -345,17 +400,4 @@ def _search(oGui, sSearchText):
     if not sSearchText: return
 
     # URL-Übergeben und Ergebniss anzeigen
-    showEntries(URL_SEARCH + sSearchText.strip(), oGui)
-
-# Funktion zum ermitteln des HTML-Contens (mit angepassten Header)
-def __getHtmlContent(sUrl = False,):
-    #ParameterHandler erzeugen
-    oParams = ParameterHandler()
-
-    # URL ermitteln falls nicht übergeben
-    if not sUrl: sUrl = oParams.getValue('url')
-
-    # Request durchführen
-    oRequest = cRequestHandler(sUrl)
-    oRequest.addHeaderEntry('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13C75 Safari/601.1')
-    return oRequest.request()
+    showEntries(URL_SEARCH % sSearchText.strip(), oGui)

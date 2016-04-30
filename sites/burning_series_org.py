@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from resources.lib.gui.gui import cGui
 from resources.lib.util import cUtil
 from resources.lib.gui.guiElement import cGuiElement
@@ -7,26 +7,26 @@ from resources.lib.parser import cParser
 from resources.lib.handler.ParameterHandler import ParameterHandler
 from resources.lib.config import cConfig
 from resources.lib import logger
-import collections
 import string
 import json
+import random
 from resources.lib.bs_finalizer import *
 
 # "Global" variables
-SITE_IDENTIFIER = 'bs_to'
+SITE_IDENTIFIER = 'burning_series_org'
 SITE_NAME = 'BurningSeries'
 SITE_ICON = 'burning_series.png'
 
-URL_MAIN = 'http://www.bs.to/api/'
-URL_COVER = 'http://s.bs.to/img/cover/%s.jpg|encoding=gzip'
+URL_MAIN = 'https://www.bs.to/api/'
+URL_COVER = 'https://s.bs.to/img/cover/%s.jpg|encoding=gzip'
 
 # Mainmenu
 def load():
     logger.info("Load %s" % SITE_NAME)
     oGui = cGui()
     oGui.addFolder(cGuiElement('Alle Serien', SITE_IDENTIFIER, 'showSeries'))
-    oGui.addFolder(cGuiElement('Genres', SITE_IDENTIFIER, 'showGenres'))
     oGui.addFolder(cGuiElement('A-Z', SITE_IDENTIFIER, 'showCharacters'))
+    oGui.addFolder(cGuiElement('Zufall', SITE_IDENTIFIER, 'showRandom'))
     oGui.addFolder(cGuiElement('Suche', SITE_IDENTIFIER, 'showSearch'))
     oGui.setEndOfDirectory()
 
@@ -46,7 +46,10 @@ def showSeries():
             if sChar == '#':
                 if sTitle[0].isalpha(): continue
             elif sTitle[0].lower() != sChar: continue
-        guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
+        if oParams.getValue('specific') == 'Season':
+            guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'randomSeason')
+        else:
+            guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
         guiElement.setMediaType('tvshow')
         guiElement.setThumbnail(URL_COVER % serie["id"])
         # Load series description by iteration through the REST-Api (slow)
@@ -74,32 +77,6 @@ def showCharacters():
         oParams.setParam('char', letter)
         oGui.addFolder(oGuiElement, oParams)
     oGui.setEndOfDirectory()
-    
-def showGenres():
-    oGui = cGui()
-    oParams = ParameterHandler()
-    sGenre = oParams.getValue('genre')
-    genres = _getJsonContent("series:genre")
-    od = collections.OrderedDict(sorted(genres.items()))
-    
-    if sGenre:
-        total = len(genres[sGenre])
-        for serie in genres[sGenre]["series"]:
-            sTitle = serie["name"].encode('utf-8')
-            guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
-            guiElement.setMediaType('tvshow')
-            guiElement.setThumbnail(URL_COVER % serie["id"])
-            oParams.addParams({'seriesID' : str(serie["id"]), 'Title' : sTitle})
-            oGui.addFolder(guiElement, oParams, iTotal = total)
-        oGui.setView('tvshows')
-        oGui.setEndOfDirectory()
-    else:
-        for genre in od:
-            genre = genre.encode('utf-8')
-            oGuiElement = cGuiElement(genre, SITE_IDENTIFIER, 'showGenres')
-            oParams.setParam('genre', genre)
-            oGui.addFolder(oGuiElement, oParams)
-        oGui.setEndOfDirectory()
 
 # Show the search dialog, return/abort on empty input
 def showSearch():
@@ -115,14 +92,7 @@ def showSearch():
 def _getJsonContent(urlPart):
     request = cRequestHandler(URL_MAIN + urlPart)
     mod_request(request, urlPart)
-    data = json.loads(request.request())
-    
-    # check for error and return Null if there is an Error
-    if 'error' not in data:
-        return data
-    else:
-        logger.info("JSON Error: %s" % data["error"])
-        return []
+    return json.loads(request.request())
 
 # Search for series using the requested string sSearchText
 def _search(oGui, sSearchText):
@@ -159,7 +129,10 @@ def showSeasons():
             dialogType = 'showCinemaMovies'
         else:
             seasonTitle = '%s - Staffel %s' %(sTitle, seasonNum)
-            dialogType = 'showEpisodes'
+            if params.getValue('specific') == 'Episode':
+                dialogType = 'randomEpisode'
+            else:
+                dialogType = 'showEpisodes'
         guiElement = cGuiElement(seasonTitle, SITE_IDENTIFIER, dialogType)
         guiElement.setMediaType('season')
         guiElement.setSeason(seasonNum)
@@ -224,7 +197,96 @@ def showCinemaMovies():
         oGui.addFolder(guiElement, oParams, bIsFolder = False, iTotal = total)
     oGui.setView('movie')
     oGui.setEndOfDirectory()
+    
+def showRandom():
+    oGui = cGui()
+    oParams = ParameterHandler()
 
+    oGui.addFolder(cGuiElement('Zufällige Serie', SITE_IDENTIFIER, 'randomSerie'))
+    oParams.setParam('specific', 'Season')
+    oGui.addFolder(cGuiElement('Zufällige Staffel', SITE_IDENTIFIER, 'randomSeason'), oParams)
+    oParams.setParam('specific', 'Episode')
+    oGui.addFolder(cGuiElement('Zufällige Episode', SITE_IDENTIFIER, 'randomEpisode'), oParams)
+
+    oGui.setEndOfDirectory()
+
+def randomSerie():
+    oGui = cGui()
+    oParams = ParameterHandler()
+    serie = random.choice(_getJsonContent('series'))
+    sTitle = serie["series"].encode('utf-8')
+    guiElement = cGuiElement(sTitle, SITE_IDENTIFIER, 'showSeasons')
+    guiElement.setMediaType('tvshow')
+    guiElement.setThumbnail(URL_COVER % serie["id"])
+    oParams.addParams({'seriesID': str(serie["id"]), 'Title': sTitle})
+    oGui.addFolder(guiElement, oParams, iTotal=1)
+
+    oGui.setEndOfDirectory()
+
+def randomSeason():
+    oGui = cGui()
+    oParams = ParameterHandler()
+    if oParams.getValue('specific') == 'Season' and not oParams.getValue('seriesID'):
+        showSeries()
+        return
+
+    data = _getJsonContent("series/%s/1" % oParams.getValue('seriesID'))
+
+    seasons = int(data["series"]["seasons"])+1
+
+    randomSeason = random.randrange(1, seasons, 1)
+
+    seasonNum = str(randomSeason)
+    seasonTitle = '%s - Staffel %s' % (oParams.getValue('Title'), seasonNum)
+    dialogType = 'showEpisodes'
+    guiElement = cGuiElement(seasonTitle, SITE_IDENTIFIER, dialogType)
+    guiElement.setMediaType('season')
+    guiElement.setSeason(seasonNum)
+    guiElement.setTVShowTitle(oParams.getValue('Title'))
+
+    oParams.setParam('Season', seasonNum)
+    guiElement.setThumbnail(URL_COVER % data["series"]["id"])
+    oGui.addFolder(guiElement, oParams, iTotal=1)
+
+    oGui.setEndOfDirectory()
+
+def randomEpisode():
+    oGui = cGui()
+    oParams = ParameterHandler()
+    if oParams.getValue('specific') == 'Episode' and not oParams.getValue('seriesID'):
+        showSeries()
+        return
+    elif oParams.getValue('seriesID') and not oParams.getValue('Season'):
+        showSeasons()
+        return
+    else:
+        series = {'id': oParams.getValue('seriesID'), 'series': oParams.getValue('Title')}
+
+    season = _getJsonContent("series/%s/1" % series['id'])
+    randomEpisodeNr = (random.choice(season['epi']))['epi']
+    randomEpisode = filter(lambda person: person['epi'] == randomEpisodeNr, season['epi'])[0]
+
+    Title = season['series']['series'].encode('utf-8') + ' - Staffel ' + str(season['season']) + ' - '
+    if randomEpisode['german']:
+        Title += randomEpisode['german'].encode('utf-8')
+    else:
+        Title += randomEpisode['english'].encode('utf-8')
+
+    guiElement = cGuiElement(Title, SITE_IDENTIFIER, 'showHosters')
+    guiElement.setMediaType('episode')
+    guiElement.setEpisode(randomEpisodeNr)
+    guiElement.setSeason(season['season'])
+    guiElement.setTVShowTitle(series['series'])
+    guiElement.setThumbnail(URL_COVER % int(season['series']['id']))
+    oParams.setParam('EpisodeNr', randomEpisodeNr)
+    oParams.setParam('seriesID', season['series']['id'])
+    oParams.setParam('Season', season['season'])
+    oGui.addFolder(guiElement, oParams, bIsFolder=False, iTotal=1)
+
+    oGui.setView('episodes')
+    oGui.setEndOfDirectory()
+    return
+ 
 # Show a hoster dialog for a requested episode
 def showHosters():
     oParams= ParameterHandler()
@@ -252,10 +314,13 @@ def getHosterUrl(sUrl = False):
     #sHoster = oParams.getValue('Hoster')
     if not sUrl: sUrl = oParams.getValue('url')
     data = _getJsonContent(sUrl.replace(URL_MAIN, ''))
-
     results = []
     result = {}
-    result['streamUrl'] = data['fullurl']
+    if data['fullurl'].startswith('http'):
+        result['streamUrl'] = data['fullurl']
+    else:
+        result['streamID'] = data['url']
+        result['host'] = data['hoster']
     result['resolved'] = False
     results.append(result)
     return results
